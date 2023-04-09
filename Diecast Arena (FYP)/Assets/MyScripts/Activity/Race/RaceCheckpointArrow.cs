@@ -48,7 +48,6 @@ public class RaceCheckpointArrow : MonoBehaviour
 
     public IEnumerator WaitForInactive(int index)
     {
-        Debug.Log(index);
         yield return new WaitForSeconds(CheckpointCol.inactiveAfter);
         arrows[index].SetActive(false);
     }

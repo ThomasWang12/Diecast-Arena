@@ -35,7 +35,7 @@ namespace RVP
         public void SpawnVehicle(int vehicle)
         {
             spawnPoint = (spawnPos == null) ? spawnPoint : spawnPos.transform.position; // #%
-            spawnRot = (spawnPos == null) ? spawnRot : new Vector3(Methods.InspectorRotation(spawnPos).y, 0, 0); // #%
+            spawnRot = (spawnPos == null) ? spawnRot : new Vector3(Methods.WrapAngle(spawnPos.transform.rotation.y), 0, 0); // #%
             Quaternion dir = (spawnRot.x == 0) ? Quaternion.identity : Quaternion.LookRotation(spawnRot, GlobalControl.worldUpDir); // #%
             newVehicle = Instantiate(vehicles[vehicle], spawnPoint + Common.spawnHeightOffset, dir) as GameObject;
             cam.target = newVehicle.transform;

@@ -349,41 +349,41 @@ public class GameMaster : MonoBehaviour
             gameState.Session => "Session",
             gameState.Session_StartingActivity => "Session (Starting Activity)",
 
-            gameState.Activity0_Loading => "Loading " + activityList[0].name,
+            gameState.Activity0_Loading => activityList[0].name + " Loading",
             gameState.Activity0_BeforeStart => activityList[0].name + " (Before Start)",
             gameState.Activity0 => activityList[0].name,
             gameState.Activity0_Finished => activityList[0].name + " (Finished)",
-            gameState.Activity0_Exit => "Exiting " + activityList[0].name,
+            gameState.Activity0_Exit => activityList[0].name + " Exiting",
 
-            gameState.Activity1_Loading => "Loading " + activityList[1].name,
+            gameState.Activity1_Loading => activityList[1].name + " Loading",
             gameState.Activity1_BeforeStart => activityList[1].name + " (Before Start)",
             gameState.Activity1 => activityList[1].name,
             gameState.Activity1_Finished => activityList[1].name + " (Finished)",
-            gameState.Activity1_Exit => "Exiting " + activityList[1].name,
+            gameState.Activity1_Exit => activityList[1].name + " Exiting",
 
-            gameState.Activity2_Loading => "Loading " + activityList[2].name,
+            gameState.Activity2_Loading => activityList[2].name + " Loading",
             gameState.Activity2_BeforeStart => activityList[2].name + " (Before Start)",
             gameState.Activity2 => activityList[2].name,
             gameState.Activity2_Finished => activityList[2].name + " (Finished)",
-            gameState.Activity2_Exit => "Exiting " + activityList[2].name,
+            gameState.Activity2_Exit => activityList[2].name + " Exiting",
 
-            gameState.Activity3_Loading => "Loading " + activityList[3].name,
+            gameState.Activity3_Loading => activityList[3].name + " Loading",
             gameState.Activity3_BeforeStart => activityList[3].name + " (Before Start)",
             gameState.Activity3 => activityList[3].name,
             gameState.Activity3_Finished => activityList[3].name + " (Finished)",
-            gameState.Activity3_Exit => "Exiting " + activityList[3].name,
+            gameState.Activity3_Exit => activityList[3].name + " Exiting",
 
-            gameState.Activity4_Loading => "Loading " + activityList[4].name,
+            gameState.Activity4_Loading => activityList[4].name + " Loading",
             gameState.Activity4_BeforeStart => activityList[4].name + " (Before Start)",
             gameState.Activity4 => activityList[4].name,
             gameState.Activity4_Finished => activityList[4].name + " (Finished)",
-            gameState.Activity4_Exit => "Exiting " + activityList[4].name,
+            gameState.Activity4_Exit => activityList[4].name + " Exiting",
 
-            gameState.Activity5_Loading => "Loading " + activityList[5].name,
+            gameState.Activity5_Loading => activityList[5].name + " Loading",
             gameState.Activity5_BeforeStart => activityList[5].name + " (Before Start)",
             gameState.Activity5 => activityList[5].name,
             gameState.Activity5_Finished => activityList[5].name + " (Finished)",
-            gameState.Activity5_Exit => "Exiting " + activityList[5].name,
+            gameState.Activity5_Exit => activityList[5].name + " Exiting",
 
             _ => state.ToString()
         };

@@ -172,12 +172,17 @@ public static class Methods
         return "{ " + output + " }";
     }
 
-    public static Vector3 InspectorRotation(GameObject obj)
+    public static float WrapAngle(float angle)
     {
-        if (obj == null) return Vector3.zero;
-        var x = UnityEditor.TransformUtils.GetInspectorRotation(obj.transform).x;
-        var y = UnityEditor.TransformUtils.GetInspectorRotation(obj.transform).y;
-        var z = UnityEditor.TransformUtils.GetInspectorRotation(obj.transform).z;
-        return new Vector3(x, y, z);
+        angle %= 360;
+        if (angle > 180) return angle - 360;
+        return angle;
+    }
+
+    public static float UnwrapAngle(float angle)
+    {
+        if (angle >= 0) return angle;
+        angle = -angle % 360;
+        return 360 - angle;
     }
 }
