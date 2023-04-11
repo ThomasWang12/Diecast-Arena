@@ -1,7 +1,9 @@
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
-public class LobbyPlayerPanel : MonoBehaviour {
+public class LobbyPlayerPanel : MonoBehaviour
+{
     [SerializeField] private TMP_Text _nameText, _statusText;
 
     public ulong PlayerId { get; private set; }

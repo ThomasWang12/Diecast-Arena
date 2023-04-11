@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
-public class CreateLobbyScreen : MonoBehaviour {
+public class CreateLobbyScreen : MonoBehaviour
+{
+    [SerializeField] private TMP_InputField _playerNameInput; // #%
     [SerializeField] private TMP_InputField _nameInput, _maxPlayersInput;
     [SerializeField] private TMP_Dropdown _typeDropdown, _difficultyDropdown;
 
@@ -21,10 +24,10 @@ public class CreateLobbyScreen : MonoBehaviour {
 
     public void OnCreateClicked() {
         var lobbyData = new LobbyData {
-            Name = _nameInput.text,
-            MaxPlayers = int.Parse(_maxPlayersInput.text),
-            Difficulty = _difficultyDropdown.value,
-            Type = _typeDropdown.value
+            Name = (Methods.IsEmptyOrWhiteSpace(_nameInput.text)) ? "My Lobby" : _nameInput.text, // #%
+            MaxPlayers = Constants.MaxPlayers, // int.Parse(_maxPlayersInput.text), // #%
+            Difficulty = 1, // _difficultyDropdown.value, // #%
+            Type = 0, // _typeDropdown.value // #%
         };
 
         LobbyCreated?.Invoke(lobbyData);

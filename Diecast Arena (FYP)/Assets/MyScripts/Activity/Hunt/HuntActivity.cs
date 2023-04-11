@@ -14,7 +14,7 @@ public class HuntActivity : MonoBehaviour
     int activityIndex;
     Vector3 startPos;
     Quaternion startRot;
-    bool initialized = false;
+    //bool initialized = false;
 
     public enum playerRole { Initial, Target, Hunter };
 
@@ -24,10 +24,10 @@ public class HuntActivity : MonoBehaviour
     public bool finished = false;
     float startTime = 0;
     public int point = 15;
-    bool endCountdown = false;
+    //bool endCountdown = false;
 
     /* Tunables */
-    int pointDeduct = 3;
+    //int pointDeduct = 3;
 
     void Awake()
     {
@@ -69,10 +69,10 @@ public class HuntActivity : MonoBehaviour
 
     public void Reset()
     {
-        initialized = false;
+        //initialized = false;
         started = false;
         finished = false;
         startTime = 0;
-        endCountdown = false;
+        //endCountdown = false;
     }
 }

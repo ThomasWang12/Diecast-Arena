@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Device;
 using UnityEngine.UIElements;
@@ -184,5 +185,20 @@ public static class Methods
         if (angle >= 0) return angle;
         angle = -angle % 360;
         return 360 - angle;
+    }
+
+    public static bool IsEmptyOrWhiteSpace(string value) => value.All(char.IsWhiteSpace);
+
+    public static GameObject FindOwnedPlayerVehicle()
+    {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (var player in players)
+        {
+            if (player.TryGetComponent<NetworkObject>(out var networkObject))
+            {
+                if (networkObject.IsOwner) return player;
+            }
+        }
+        return null;
     }
 }

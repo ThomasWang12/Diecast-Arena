@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
-public class MainLobbyScreen : MonoBehaviour {
+public class MainLobbyScreen : MonoBehaviour
+{
     [SerializeField] private LobbyRoomPanel _lobbyPanelPrefab;
     [SerializeField] private Transform _lobbyParent;
     [SerializeField] private GameObject _noLobbiesText;

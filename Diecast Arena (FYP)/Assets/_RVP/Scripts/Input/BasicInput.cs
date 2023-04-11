@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Unity.Netcode;
 
 namespace RVP
 {
@@ -8,7 +9,7 @@ namespace RVP
     [AddComponentMenu("RVP/Input/Basic Input", 0)]
 
     // Class for setting the input with the input manager
-    public class BasicInput : MonoBehaviour
+    public class BasicInput : NetworkBehaviour // MonoBehaviour
     {
         GameMaster master;
         InputManager input;
@@ -25,10 +26,13 @@ namespace RVP
         public string yawAxis;
         public string rollAxis;
 
-        void Awake()
+        //void Awake()
+        public override void OnNetworkSpawn()
         {
             master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
             input = master.ManagerObject(Manager.type.input).GetComponent<InputManager>();
+            if (master == null) Debug.Log("No master!", this);
+            else Debug.Log("Yes master!", this);
         }
 
         void Start()
@@ -38,6 +42,8 @@ namespace RVP
 
         void Update()
         {
+            if (!IsOwner) return;
+
             // Get single-frame input presses
 
             if (!string.IsNullOrEmpty(upshiftButton))
@@ -55,6 +61,8 @@ namespace RVP
 
         void FixedUpdate()
         {
+            if (!IsOwner) return;
+
             // Get constant inputs
 
             if (!input.allowInput) return;

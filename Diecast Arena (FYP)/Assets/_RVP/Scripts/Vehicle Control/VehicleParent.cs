@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Timeline;
+using Unity.Netcode;
 
 namespace RVP
 {
@@ -8,14 +10,14 @@ namespace RVP
     [AddComponentMenu("RVP/Vehicle Controllers/Vehicle Parent", 0)]
 
     // Vehicle root class
-    public class VehicleParent : MonoBehaviour
+    public class VehicleParent : NetworkBehaviour // #% Momo -> Network
     {
         [System.NonSerialized]
         public Rigidbody rb;
         [System.NonSerialized]
         public Transform tr;
         [System.NonSerialized]
-        public Transform norm; // Normal orientation object
+        public Transform norm; // Normal orientation object // #% I made it public
 
         [System.NonSerialized]
         public float accelInput;
@@ -129,22 +131,26 @@ namespace RVP
         public float cameraDistanceChange;
         public float cameraHeightChange;
 
-        void Start() {
+        // #% My Variables
+        //[HideInInspector] public GameObject normOrient;
+
+        public void GetNormOrient(GameObject spawnNormOrient) // #%
+        {
+            spawnNormOrient.name = tr.name + " Normal Orientation";
+            norm = spawnNormOrient.transform;
+        }
+
+        //void Start() {
+        public override void OnNetworkSpawn()
+        {
             tr = transform;
             rb = GetComponent<Rigidbody>();
 
-            //if (GetComponent<NetworkObject>() == null)
-            //{
-                // Create normal orientation object
-                GameObject normTemp = new GameObject(tr.name + "'s Normal Orientation");
-                norm = normTemp.transform;
-            //}
-            /*else
-            {
-                // #% Spawn VehicleNormOrient through network script
-                GetComponent<VehicleNormOrient>().SpawnNormOrient();
-                norm = GetComponent<VehicleNormOrient>().spawnedNormOrient;
-            }*/
+            // #% Network
+            GameObject normOrient = Instantiate(GameObject.Find("Game Manager").GetComponent<GameManager>().vehicleNormOrient);
+            normOrient.GetComponent<NetworkObject>().Spawn(true);
+            normOrient.name = tr.name + "'s Normal Orientation";
+            norm = normOrient.transform;
 
             SetCenterOfMass();
 
@@ -223,8 +229,8 @@ namespace RVP
             forwardDot = Vector3.Dot(forwardDir, GlobalControl.worldUpDir);
             rightDot = Vector3.Dot(rightDir, GlobalControl.worldUpDir);
             upDot = Vector3.Dot(upDir, GlobalControl.worldUpDir);
-            norm.transform.position = tr.position;
-            norm.transform.rotation = Quaternion.LookRotation(groundedWheels == 0 ? upDir : wheelNormalAverage, forwardDir);
+            if (norm != null) norm.transform.position = tr.position;
+            if (norm != null) norm.transform.rotation = Quaternion.LookRotation(groundedWheels == 0 ? upDir : wheelNormalAverage, forwardDir);
 
             // Check if performing a burnout
             if (groundedWheels > 0 && !hover && !accelAxisIsBrake && burnoutThreshold >= 0 && accelInput > burnoutThreshold && brakeInput > burnoutThreshold) {

@@ -10,6 +10,7 @@ using UnityEngine.UI;
 
 public class GameMaster : MonoBehaviour
 {
+    Common common;
     InputManager input;
     SoundManager sound;
     UIManager UI;
@@ -67,6 +68,7 @@ public class GameMaster : MonoBehaviour
 
     void Awake()
     {
+        common = ManagerObject(Manager.type.common).GetComponent<Common>();
         input = ManagerObject(Manager.type.input).GetComponent<InputManager>();
         sound = ManagerObject(Manager.type.sound).GetComponent<SoundManager>();
         UI = ManagerObject(Manager.type.UI).GetComponent<UIManager>();

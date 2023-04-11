@@ -48,8 +48,6 @@ public class LobbyOrchestrator : NetworkBehaviour {
         }
     }
 
- 
-
     #endregion
 
     #region Create

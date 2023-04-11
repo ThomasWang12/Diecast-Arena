@@ -59,10 +59,8 @@ public static class MatchmakingService {
         var options = new CreateLobbyOptions {
             Data = new Dictionary<string, DataObject> {
                 { Constants.JoinKey, new DataObject(DataObject.VisibilityOptions.Member, joinCode) },
-                { Constants.GameTypeKey, new DataObject(DataObject.VisibilityOptions.Public, data.Type.ToString(), DataObject.IndexOptions.N1) }, {
-                    Constants.DifficultyKey,
-                    new DataObject(DataObject.VisibilityOptions.Public, data.Difficulty.ToString(), DataObject.IndexOptions.N2)
-                }
+                { Constants.GameTypeKey, new DataObject(DataObject.VisibilityOptions.Public, data.Type.ToString(), DataObject.IndexOptions.N1) },
+                { Constants.DifficultyKey, new DataObject(DataObject.VisibilityOptions.Public, data.Difficulty.ToString(), DataObject.IndexOptions.N2) }
             }
         };
 

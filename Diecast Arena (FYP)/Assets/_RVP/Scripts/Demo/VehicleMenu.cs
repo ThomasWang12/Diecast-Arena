@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using Unity.Netcode;
 
 namespace RVP
 {
@@ -39,13 +40,13 @@ namespace RVP
             Quaternion dir = (spawnRot.x == 0) ? Quaternion.identity : Quaternion.LookRotation(spawnRot, GlobalControl.worldUpDir); // #%
             //newVehicle = Instantiate(vehicles[vehicle], spawnPoint + Common.spawnHeightOffset, dir) as GameObject;
 
-            // Network
-            newVehicle = GameObject.FindWithTag("Player");
+            // #% Network
+            newVehicle = Methods.FindOwnedPlayerVehicle();
+            ulong id = newVehicle.GetComponent<NetworkObject>().OwnerClientId;
+            newVehicle.name = "Player " + id + " Vehicle";
 
             cam.target = newVehicle.transform;
             cam.Initialize();
-
-            newVehicle.name = "Player Vehicle";
 
             if (newVehicle.GetComponent<VehicleAssist>())
             {
