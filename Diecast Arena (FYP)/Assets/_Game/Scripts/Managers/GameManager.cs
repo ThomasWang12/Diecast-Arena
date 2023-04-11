@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class GameManager : NetworkBehaviour {
-    [SerializeField] private PlayerController _playerPrefab;
+    [SerializeField] private GameObject _playerPrefab;
     public GameObject vehicleNormOrient; // #%
     [SerializeField] private GameObject gameMasterPrefab; // #%
     [SerializeField] private GameObject spawnPointsPrefab; // #%
@@ -25,7 +25,8 @@ public class GameManager : NetworkBehaviour {
 
         GameObject spawnPoint = GameObject.Find("Spawn Points").transform.Find("Player " + playerId).gameObject; // #%
         var spawn = Instantiate(_playerPrefab, spawnPoint.transform.position, spawnPoint.transform.rotation); // #%
-        spawn.NetworkObject.SpawnWithOwnership(playerId);
+        //spawn.NetworkObject.SpawnWithOwnership(playerId); // PlayerController
+        spawn.GetComponent<NetworkObject>().SpawnWithOwnership(playerId);
 
         Debug.Log("Spawned player through SpawnPlayerServerRpc", this);
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 namespace RVP
 {
@@ -26,11 +27,37 @@ namespace RVP
         public string yawAxis;
         public string rollAxis;
 
-        //void Awake()
+        // #% My Variables
+        List<GameObject> all = new List<GameObject>();
+
+        void Awake()
+        {
+            if (gameObject.tag != "Player") return;
+
+            /*all.Clear();
+            all = Methods.GetAllObjectsOnlyInScene();
+            foreach (var go in all)
+            {
+                if (go.transform.parent == null)
+                    Debug.Log(gameObject.name + " found in Awake(): " + go.name, this);
+            }*/
+        }
+
         public override void OnNetworkSpawn()
         {
+            if (gameObject.tag != "Player") return;
+
+            /*all.Clear();
+            all = Methods.GetAllObjectsOnlyInScene();
+            foreach (var go in all)
+            {
+                if (go.transform.parent == null)
+                    Debug.Log(gameObject.name + " found in OnNetworkSpawn(): " + go.name, this);
+            }*/
+
             master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
             input = master.ManagerObject(Manager.type.input).GetComponent<InputManager>();
+
             if (master == null) Debug.Log("No master!", this);
             else Debug.Log("Yes master!", this);
         }

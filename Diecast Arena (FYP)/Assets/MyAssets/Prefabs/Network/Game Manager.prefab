@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0704c5428d273f74eb31c0590429ac70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerPrefab: {fileID: -3722549108050970710, guid: f5dafa57aa699594eb7b8db7847400e6,
+  _playerPrefab: {fileID: 6816062274791698508, guid: 15b9fab911a66894d8c4c8a9e8cb4ccb,
     type: 3}
   vehicleNormOrient: {fileID: 2780473812862748486, guid: d5204ea26aa963d40a72734ee680bed7,
     type: 3}

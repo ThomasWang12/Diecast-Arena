@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.Timeline;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 namespace RVP
 {
@@ -17,7 +18,7 @@ namespace RVP
         [System.NonSerialized]
         public Transform tr;
         [System.NonSerialized]
-        public Transform norm; // Normal orientation object // #% I made it public
+        public Transform norm; // Normal orientation object
 
         [System.NonSerialized]
         public float accelInput;
@@ -133,24 +134,53 @@ namespace RVP
 
         // #% My Variables
         //[HideInInspector] public GameObject normOrient;
+        List<GameObject> all = new List<GameObject>();
 
-        public void GetNormOrient(GameObject spawnNormOrient) // #%
+        void Awake()
         {
-            spawnNormOrient.name = tr.name + " Normal Orientation";
-            norm = spawnNormOrient.transform;
+            if (gameObject.tag != "Player") return;
+
+            norm = GameObject.Find("Player " + OwnerClientId + " Normal Orientation").transform;
+            if (norm == null) Debug.Log("norm is null", this);
+            else Debug.Log("norm = " + norm.name, this);
+
+            /*all.Clear();
+            all = Methods.GetAllObjectsOnlyInScene();
+            foreach (var go in all)
+            {
+                if (go.transform.parent == null)
+                    Debug.Log(gameObject.name + " found in Awake(): " + go.name, this);
+            }*/
         }
 
-        //void Start() {
         public override void OnNetworkSpawn()
+        {
+            if (gameObject.tag != "Player") return;
+
+            /*all.Clear();
+            all = Methods.GetAllObjectsOnlyInScene();
+            foreach (var go in all)
+            {
+                if (go.transform.parent == null)
+                    Debug.Log(gameObject.name + " found in OnNetworkSpawn(): " + go.name, this);
+            }*/
+
+            string isWhichType = "";
+            if (IsServer) isWhichType = "I am server";
+            if (IsClient) isWhichType = "I am client";
+            Debug.Log(isWhichType + ": OwnerClientId: " + OwnerClientId, this);
+        }
+
+        void Start()
         {
             tr = transform;
             rb = GetComponent<Rigidbody>();
 
             // #% Network
-            GameObject normOrient = Instantiate(GameObject.Find("Game Manager").GetComponent<GameManager>().vehicleNormOrient);
-            normOrient.GetComponent<NetworkObject>().Spawn(true);
-            normOrient.name = tr.name + "'s Normal Orientation";
-            norm = normOrient.transform;
+            //GameObject normOrient = Instantiate(GameObject.Find("Game Manager").GetComponent<GameManager>().vehicleNormOrient);
+            //normOrient.GetComponent<NetworkObject>().Spawn(true);
+            //normOrient.name = tr.name + "'s Normal Orientation";
+            //norm = GameObject.Find("Player " + OwnerClientId + " Normal Orientation").transform;
 
             SetCenterOfMass();
 
