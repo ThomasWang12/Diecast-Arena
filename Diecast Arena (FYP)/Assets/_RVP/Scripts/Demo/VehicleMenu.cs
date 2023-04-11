@@ -41,8 +41,8 @@ namespace RVP
             //newVehicle = Instantiate(vehicles[vehicle], spawnPoint + Common.spawnHeightOffset, dir) as GameObject;
 
             // #% Network
-            newVehicle = Methods.FindOwnedPlayerVehicle();
-            ulong id = newVehicle.GetComponent<NetworkObject>().OwnerClientId;
+            newVehicle = Methods.FindOwnedPlayer();
+            int id = (int) newVehicle.GetComponent<NetworkObject>().OwnerClientId;
             newVehicle.name = "Player " + id + " Vehicle";
 
             cam.target = newVehicle.transform;

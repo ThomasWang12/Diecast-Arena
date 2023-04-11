@@ -61,7 +61,7 @@ public class ActivityTrigger : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (!Methods.IsPlayer(other)) return;
+        if (!Methods.IsOwnedPlayer(other)) return;
         if (!master.activityList[activityIndex].available) return;
         inTrigger = true;
 
@@ -72,14 +72,14 @@ public class ActivityTrigger : MonoBehaviour
 
     void OnTriggerStay(Collider other)
     {
-        if (!Methods.IsPlayer(other)) return;
+        if (!Methods.IsOwnedPlayer(other)) return;
         if (!master.activityList[activityIndex].available) return;
         inTrigger = true;
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (!Methods.IsPlayer(other)) return;
+        if (!Methods.IsOwnedPlayer(other)) return;
         if (!master.activityList[activityIndex].available) return;
         inTrigger = false;
 

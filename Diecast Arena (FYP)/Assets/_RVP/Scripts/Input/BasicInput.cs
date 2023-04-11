@@ -2,6 +2,8 @@
 using System.Collections;
 using Unity.Netcode;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+using System;
 
 namespace RVP
 {
@@ -10,7 +12,7 @@ namespace RVP
     [AddComponentMenu("RVP/Input/Basic Input", 0)]
 
     // Class for setting the input with the input manager
-    public class BasicInput : NetworkBehaviour // MonoBehaviour
+    public class BasicInput : NetworkBehaviour // #% Mono -> Network
     {
         GameMaster master;
         InputManager input;
@@ -27,43 +29,14 @@ namespace RVP
         public string yawAxis;
         public string rollAxis;
 
-        // #% My Variables
-        List<GameObject> all = new List<GameObject>();
-
-        void Awake()
-        {
-            if (gameObject.tag != "Player") return;
-
-            /*all.Clear();
-            all = Methods.GetAllObjectsOnlyInScene();
-            foreach (var go in all)
-            {
-                if (go.transform.parent == null)
-                    Debug.Log(gameObject.name + " found in Awake(): " + go.name, this);
-            }*/
-        }
-
-        public override void OnNetworkSpawn()
-        {
-            if (gameObject.tag != "Player") return;
-
-            /*all.Clear();
-            all = Methods.GetAllObjectsOnlyInScene();
-            foreach (var go in all)
-            {
-                if (go.transform.parent == null)
-                    Debug.Log(gameObject.name + " found in OnNetworkSpawn(): " + go.name, this);
-            }*/
-
-            master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
-            input = master.ManagerObject(Manager.type.input).GetComponent<InputManager>();
-
-            if (master == null) Debug.Log("No master!", this);
-            else Debug.Log("Yes master!", this);
-        }
-
         void Start()
         {
+            if (SceneManager.GetActiveScene().name == Common.mainSceneName)
+            {
+                master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
+                input = master.ManagerObject(Manager.type.input).GetComponent<InputManager>();
+            }
+
             vp = GetComponent<VehicleParent>();
         }
 
@@ -72,6 +45,8 @@ namespace RVP
             if (!IsOwner) return;
 
             // Get single-frame input presses
+
+            if (!master.ready) return;
 
             if (!string.IsNullOrEmpty(upshiftButton))
             {
@@ -91,6 +66,8 @@ namespace RVP
             if (!IsOwner) return;
 
             // Get constant inputs
+
+            if (!master.ready) return;
 
             if (!input.allowInput) return;
 

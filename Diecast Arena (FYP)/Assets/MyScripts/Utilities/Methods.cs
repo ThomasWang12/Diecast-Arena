@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
+using Unity.Services.Lobbies.Models;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Device;
@@ -77,13 +78,11 @@ public static class Methods
         return result[0];
     }
 
-    public static bool IsPlayer(Collider other)
+    public static bool IsOwnedPlayer(Collider other)
     {
-        // Detects for the box collider of 'chassis' in player vehicle
-        if (other.transform.root.gameObject.tag != "Player"
-            || other.gameObject.name != "chassis") return false;
-
-        return true;
+        if (other.tag == "Player")
+            return other.GetComponent<NetworkObject>().IsOwner;
+        else return false;
     }
 
     public static string TimeFormat(float time, bool showDecimal)
@@ -190,7 +189,7 @@ public static class Methods
 
     public static bool IsEmptyOrWhiteSpace(string value) => value.All(char.IsWhiteSpace);
 
-    public static GameObject FindOwnedPlayerVehicle()
+    public static GameObject FindOwnedPlayer()
     {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
         foreach (var player in players)
@@ -203,15 +202,24 @@ public static class Methods
         return null;
     }
 
-    public static List<GameObject> GetAllObjectsOnlyInScene()
+    public static void DefaultPlayerNames()
+    {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (var player in players)
+        {
+            if (player.TryGetComponent<NetworkObject>(out var networkObject))
+            {
+                player.name = "Player " + networkObject.OwnerClientId + " Vehicle";
+            }
+        }
+    }
+
+    public static List<GameObject> GetAllObjectsInScene()
     {
         List<GameObject> objectsInScene = new List<GameObject>();
 
         foreach (GameObject go in Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[])
-        {
-            //if (!EditorUtility.IsPersistent(go.transform.root.gameObject) && !(go.hideFlags == HideFlags.NotEditable || go.hideFlags == HideFlags.HideAndDontSave))
-                objectsInScene.Add(go);
-        }
+            objectsInScene.Add(go);
 
         return objectsInScene;
     }

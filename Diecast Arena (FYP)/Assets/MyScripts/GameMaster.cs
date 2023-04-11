@@ -103,7 +103,9 @@ public class GameMaster : MonoBehaviour
 
     public void GetReady()
     {
-        player = GameObject.FindWithTag("Player");
+        Methods.DefaultPlayerNames();
+
+        player = Methods.FindOwnedPlayer();
         vehicleGearbox = player.transform.Find("chassis").transform.Find("transmission").GetComponent<GearboxTransmission>();
         cam = Camera.main;
 

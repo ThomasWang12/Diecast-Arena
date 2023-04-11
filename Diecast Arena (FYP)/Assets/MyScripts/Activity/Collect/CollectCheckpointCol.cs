@@ -137,7 +137,7 @@ public class CollectCheckpointCol : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (!Methods.IsPlayer(other)) return;
+        if (!Methods.IsOwnedPlayer(other)) return;
 
         // Avoid repeated detection
         if (isCollided) return;
