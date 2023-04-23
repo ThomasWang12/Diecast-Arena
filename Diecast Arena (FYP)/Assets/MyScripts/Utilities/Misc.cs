@@ -4,12 +4,17 @@ using UnityEngine;
 
 public class Misc : MonoBehaviour
 {
-    bool toggleConsole = true;
+    bool toggleConsole = false;
 
     void Awake()
     {
         // Help static classes to call Awake() for their initialization
         CheckpointCol.Awake();
+    }
+
+    void Start()
+    {
+        GameObject.Find("IngameDebugConsole").GetComponent<Canvas>().enabled = toggleConsole;
     }
 
     void Update()

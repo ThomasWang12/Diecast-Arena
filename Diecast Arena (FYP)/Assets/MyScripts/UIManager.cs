@@ -15,17 +15,25 @@ public class UIManager : MonoBehaviour
 {
     GameMaster master;
     InputManager input;
+    ActivityOption activityOption;
 
     [SerializeField] GameObject canvas;
     [SerializeField] GameObject screen;
     [SerializeField] GameObject gameUI;
+    [SerializeField] GameObject options;
 
     [Header("Screen")]
     public bool toogleHUD = true;
-    [SerializeField] RawImage blackScreen;
+    [SerializeField] GameObject blackScreen;
+    [SerializeField] GameObject whiteScreen;
+    [SerializeField] GameObject blackFadeOverlay;
+
+    [Header("HUD")]
+    [SerializeField] public Text speed;
 
     [Header("Game")]
     [SerializeField] TMP_Text gameSateTMP;
+    [SerializeField] TMP_Text toggleOptionsTMP;
     [SerializeField] TMP_Text exitHintTMP;
 
     [Header("Activity Trigger")]
@@ -33,7 +41,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject activityTriggerTypeText;
     [SerializeField] GameObject activityName;
     [SerializeField] GameObject activityPressStart;
-    [SerializeField] GameObject blackFadeOverlay;
+    [SerializeField] GameObject activityOptions;
+    [SerializeField] GameObject activityPressAdjust;
 
     [SerializeField] GameObject[] activityTriggerCanvas;
 
@@ -46,6 +55,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text countTMP;
     [SerializeField] TMP_Text checkpointTMP;
     [SerializeField] TMP_Text timeTMP;
+    [SerializeField] public TMP_Text huntSpeedLimitTMP;
 
     [Header("Activity Finish")]
     [SerializeField] GameObject activityResult;
@@ -67,8 +77,11 @@ public class UIManager : MonoBehaviour
     bool promptsInit1 = false;
     [HideInInspector] public bool promptsInitialized = false;
     string prompt_startActivity;
+    string prompt_adjustActivity;
+    string prompt_toggleOptions;
     string prompt_exitHint;
-    TextMeshProUGUI activityPressStartTMP;
+    TMP_Text activityPressStartTMP;
+    TMP_Text activityPressAdjustTMP;
 
     /* Race UI */
     int race_totalLap;
@@ -80,12 +93,14 @@ public class UIManager : MonoBehaviour
     /* Hunt UI  */
     int hunt_initialPoint;
 
+    bool toggleOptions = false;
     float returnSessionTime;
 
     void Awake()
     {
         master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
         input = master.ManagerObject(Manager.type.input).GetComponent<InputManager>();
+        activityOption = GameObject.Find("[Activity Triggers]").GetComponent<ActivityOption>();
 
         // Get the trigger canvas for each activity
         activityTriggerCanvas = new GameObject[master.activityList.Length];
@@ -98,18 +113,24 @@ public class UIManager : MonoBehaviour
         }
 
         activityPressStartTMP = activityPressStart.gameObject.GetComponent<TextMeshProUGUI>();
+        activityPressAdjustTMP = activityPressAdjust.gameObject.GetComponent<TextMeshProUGUI>();
     }
 
     void Start()
     {
         AnimationsInitial();
         ChangeButtonType(inputType.MouseKeyboard);
+
+        options.GetComponent<CanvasGroup>().alpha = (toggleOptions) ? 1 : 0;
+        options.GetComponent<CanvasGroup>().blocksRaycasts = toggleOptions;
+        huntSpeedLimitTMP.enabled = false;
     }
 
     void AnimationsInitial()
     {
         // Screen
-        Initial(screen, "Fade Black Initial", 0, 1.0f);
+        Initial(blackScreen, "Fade Black Initial", 0, 1.0f);
+        Initial(whiteScreen, "White Flash Initial", 0, 1.0f);
         // Game UI
         HideActivityInfo();
         foreach (var canvas in activityTriggerCanvas)
@@ -132,6 +153,13 @@ public class UIManager : MonoBehaviour
         if (input.ToggleHUD()) ToggleHUD();
 
         UpdatePromptText();
+
+        if (Input.GetKeyDown(KeyCode.Tab) || input.GamepadUpButton())
+        {
+            toggleOptions = !toggleOptions;
+            options.GetComponent<CanvasGroup>().alpha = (toggleOptions) ? 1 : 0;
+            options.GetComponent<CanvasGroup>().blocksRaycasts = toggleOptions;
+        }
 
         exitHintTMP.enabled = input.allowExitActivity;
 
@@ -159,13 +187,17 @@ public class UIManager : MonoBehaviour
         if (type == inputType.MouseKeyboard)
         {
             prompt_startActivity = "E";
+            prompt_adjustActivity = "+/-";
+            prompt_toggleOptions = "Tab";
             prompt_exitHint = "Esc";
         }
 
         if (type == inputType.Gamepad)
         {
-            prompt_startActivity = ControllerFont('D');
-            prompt_exitHint = ControllerFont('A');
+            prompt_startActivity = ControllerFont('x');
+            prompt_adjustActivity = ControllerFont('V');
+            prompt_toggleOptions = ControllerFont('W');
+            prompt_exitHint = ControllerFont('v');
         }
     }
 
@@ -197,10 +229,12 @@ public class UIManager : MonoBehaviour
             if (type == "Show")
             {
                 Show(activityPressStart, "Activity Press Start In", 0, 0.0f);
+                Show(activityPressAdjust, "Activity Option In", 0, 0.0f);
             }
             if (type == "Initial")
             {
                 Initial(activityPressStart, "Activity Press Start Initial", 0, 0.0f);
+                Initial(activityPressAdjust, "Activity Option Initial", 0, 0.0f);
             }
         }
     }
@@ -208,6 +242,8 @@ public class UIManager : MonoBehaviour
     void UpdatePromptText()
     {
         activityPressStartTMP.text = "Press " + prompt_startActivity + " to start";
+        activityPressAdjustTMP.text = "Press " + prompt_adjustActivity + " to adjust";
+        toggleOptionsTMP.text = prompt_toggleOptions + " - Options";
         exitHintTMP.text = prompt_exitHint + " - Exit Activity";
     }
 
@@ -240,6 +276,23 @@ public class UIManager : MonoBehaviour
         if (user.GetComponent<TextMeshProUGUI>() != null) user.GetComponent<TextMeshProUGUI>().enabled = visibility;
     }
 
+    public void UpdateActivityOptions(int index)
+    {
+        activityType type = master.activityList[index].type;
+        string optionText = "";
+
+        if (type == activityType.RaceCircuit)
+            optionText = "Laps: " + activityOption.raceLaps[activityOption.currentRaceLap];
+
+        if (type == activityType.CollectionBattle)
+            optionText = "Duration: " + activityOption.collectDurations[activityOption.currentCollectDuration] + " mins";
+
+        if (type == activityType.CarHunt)
+            optionText = "Duration: " + activityOption.huntDurations[activityOption.currentHuntDuration] + " mins";
+
+        activityOptions.GetComponent<TextMeshProUGUI>().text = optionText;
+    }
+
     public void ShowActivityInfoAnim(int index)
     {
         activityType type = master.activityList[index].type;
@@ -252,6 +305,8 @@ public class UIManager : MonoBehaviour
         activityName.gameObject.GetComponent<TextMeshProUGUI>().text = name;
         Show(activityName, "Activity Name In", 0, 0.0f);
         Show(activityPressStart, "Activity Press Start In", 0, 0.0f);
+        Show(activityOptions, "Activity Option In", 0, 0.0f);
+        Show(activityPressAdjust, "Activity Option In", 0, 0.0f);
         Show(blackFadeOverlay, "Black Fade Left Overlay In", 0, 0.0f);
     }
 
@@ -261,6 +316,8 @@ public class UIManager : MonoBehaviour
         Hide(activityTriggerTypeText, "Activity Type Text Out", 0, 0.0f);
         Hide(activityName, "Activity Name Out", 0, 0.0f);
         Hide(activityPressStart, "Activity Press Start Out", 0, 0.0f);
+        Hide(activityOptions, "Activity Option Out", 0, 0.0f);
+        Hide(activityPressAdjust, "Activity Option Out", 0, 0.0f);
         Hide(blackFadeOverlay, "Black Fade Left Overlay Out", 0, 0.0f);
     }
 
@@ -270,6 +327,8 @@ public class UIManager : MonoBehaviour
         Initial(activityTriggerTypeText, "Activity Type Text Initial", 0, 0.0f);
         Initial(activityName, "Activity Name Initial", 0, 0.0f);
         Initial(activityPressStart, "Activity Press Start Initial", 0, 0.0f);
+        Initial(activityOptions, "Activity Option Initial", 0, 0.0f);
+        Initial(activityPressAdjust, "Activity Option Initial", 0, 0.0f);
         Initial(blackFadeOverlay, "Black Fade Left Overlay Initial", 0, 0.0f);
     }
 
@@ -354,9 +413,9 @@ public class UIManager : MonoBehaviour
 
     public void UpdateHuntUI(int point, float remainingTime)
     {
-        countTMP.text = point.ToString();
-        checkpointTMP.text = "Points remaining";
-        timeTMP.text = "Time left: " + Methods.TimeFormat(remainingTime, false);
+        countTMP.text = Methods.TimeFormat(remainingTime, false);  point.ToString();
+        checkpointTMP.text = "Points remaining: " + point.ToString();
+        timeTMP.text = "";
     }
 
     // Result (Activity) UI:
@@ -387,7 +446,7 @@ public class UIManager : MonoBehaviour
         activityFinishTypeIcon.texture = ActivityTypeIcon(master.activityList[index].type);
         activityNameTMP.text = master.activityList[index].name;
         finishRankTMP.text = (win) ? "WIN" : "BUSTED!"; // for hunter: WIN / LOSE
-        playerResultTMP.text = Methods.TimeFormat(remainingTime, true) + " | Player";
+        playerResultTMP.text = Methods.TimeFormat(remainingTime, true) + " | " + point + " Points | Player";
         returnSessionTime = currentTime;
         returnSessionTMP.enabled = true;
     }
@@ -413,8 +472,13 @@ public class UIManager : MonoBehaviour
 
     public void FadeBlack(string type)
     {
-        if (type == "In") Show(screen, "Fade In Black", 0, 0.0f);
-        if (type == "Out") Show(screen, "Fade Out Black", 0, 0.0f);
+        if (type == "In") Show(blackScreen, "Fade In Black", 0, 0.0f);
+        if (type == "Out") Show(blackScreen, "Fade Out Black", 0, 0.0f);
+    }
+
+    public void WhiteFlash()
+    {
+        Show(whiteScreen, "White Flash", 0, 0.0f);
     }
 
     Texture ActivityTypeIcon(activityType type)

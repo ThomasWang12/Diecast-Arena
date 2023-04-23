@@ -6,7 +6,7 @@ public static class Sound
 {
     public enum name
     {
-        Countdown321, Countdown5, Checkpoint, CheckpointBold
+        Countdown321, Countdown5, Checkpoint, CheckpointBold, CameraShutter, GameLose
     }
 
     public static string AudioEnumToName(name name)
@@ -17,6 +17,8 @@ public static class Sound
             name.Countdown5 => "Countdown 5",
             name.Checkpoint => "Checkpoint",
             name.CheckpointBold => "Checkpoint Bold",
+            name.CameraShutter => "Camera Shutter",
+            name.GameLose => "Game Lose",
             _ => ""
         };
     }

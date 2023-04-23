@@ -4,16 +4,18 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Services.Relay.Models;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Timeline;
 using UnityEngine.UI;
 
 public class GameMaster : MonoBehaviour
 {
-    Common common;
+    PlayerNetwork network;
     InputManager input;
     SoundManager sound;
     UIManager UI;
+    Common common;
 
     [Header("Game State")]
     public gameState currentState;
@@ -39,6 +41,7 @@ public class GameMaster : MonoBehaviour
 
     [Header("Variables")]
     public Vector3 playerPos;
+    public int playerSpeed;
     public Vector3 camPos;
 
     [Header("Activities")]
@@ -62,16 +65,18 @@ public class GameMaster : MonoBehaviour
     [HideInInspector] public bool ready = false;
     [HideInInspector] public int activeActivityIndex = -1;
     GearboxTransmission vehicleGearbox;
+    TrafficLightControl trafficLightControl;
 
     /* Tunables */
     [HideInInspector] public float activityFinishWaitDuration = 4.0f;
 
     void Awake()
     {
-        common = ManagerObject(Manager.type.common).GetComponent<Common>();
+        network = ManagerObject(Manager.type.network).GetComponent<PlayerNetwork>();
         input = ManagerObject(Manager.type.input).GetComponent<InputManager>();
         sound = ManagerObject(Manager.type.sound).GetComponent<SoundManager>();
         UI = ManagerObject(Manager.type.UI).GetComponent<UIManager>();
+        common = ManagerObject(Manager.type.common).GetComponent<Common>();
 
         // Get the trigger object for each activity
         for (int i = 0; i < activityList.Length; i++)
@@ -83,15 +88,18 @@ public class GameMaster : MonoBehaviour
                 triggerObject.GetComponent<ActivityTrigger>().activity = activityList[i].mainObject;
             }
         }
+
+        trafficLightControl = GameObject.Find("Traffic Light Control").GetComponent<TrafficLightControl>();
     }
 
     // Centralize the method of getting managers in scripts
     public GameObject ManagerObject(Manager.type type)
     {
-        if (type == Manager.type.common) return transform.Find("Common").gameObject;
+        if (type == Manager.type.network) return GameObject.Find("Player Network");
         if (type == Manager.type.input) return GameObject.Find("Input Manager");
         if (type == Manager.type.sound) return GameObject.Find("Sound Manager");
         if (type == Manager.type.UI) return GameObject.Find("UI Manager");
+        if (type == Manager.type.common) return transform.Find("Common").gameObject;
         return null;
     }
 
@@ -131,6 +139,8 @@ public class GameMaster : MonoBehaviour
                 activityList[i].triggerObject.SetActive(false);
             }
         }
+
+        trafficLightControl.SetLightMode(TrafficLight.mode.Changing);
     }
 
     void Update()
@@ -143,6 +153,7 @@ public class GameMaster : MonoBehaviour
             AvailableActivities();
 
         playerPos = player.transform.position;
+        playerSpeed = Int32.Parse(UI.speed.text);
         camPos = cam.transform.position;
     }
 
@@ -190,7 +201,10 @@ public class GameMaster : MonoBehaviour
             UI.HideActivityInfo();
 
             if (type == activityType.RaceDestination || type == activityType.RaceCircuit)
+            {
                 activityList[index].mainObject.GetComponent<RaceActivity>().InitializeActivity();
+                trafficLightControl.SetLightMode(TrafficLight.mode.AlwaysGreen);
+            }
 
             if (type == activityType.CollectionBattle)
                 activityList[index].mainObject.GetComponent<CollectActivity>().InitializeActivity();
@@ -276,6 +290,7 @@ public class GameMaster : MonoBehaviour
             UI.ActivityResultUI(type, "Initial");
             UpdateGameState(gameState.Session);
             activeActivityIndex = -1;
+            network.activeActivityIndex = -1;
             UI.FadeBlack("In");
 
             #endregion
@@ -311,10 +326,15 @@ public class GameMaster : MonoBehaviour
             if (type == activityType.CarHunt)
                 activityList[index].mainObject.GetComponent<HuntActivity>().Reset();
 
+            // In case it is during countdown when exiting
+            UI.ActivityCountdown5("Initial");
+            sound.Stop(Sound.name.Countdown5);
+
             UI.ActivityUI(type, "Initial");
             UI.ActivityResultUI(type, "Initial");
             UpdateGameState(gameState.Session);
             activeActivityIndex = -1;
+            network.activeActivityIndex = -1;
             UI.FadeBlack("In");
 
             #endregion
