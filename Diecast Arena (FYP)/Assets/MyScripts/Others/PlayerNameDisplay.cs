@@ -8,9 +8,17 @@ using UnityEngine.Timeline;
 
 public class PlayerNameDisplay : MonoBehaviour
 {
+    GameMaster master;
+    PlayerNetwork network;
     Transform playername;
     [HideInInspector] public TMP_Text playernameTMP;
     int id;
+
+    void Awake()
+    {
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        network = master.network;
+    }
 
     void Start()
     {
@@ -18,7 +26,7 @@ public class PlayerNameDisplay : MonoBehaviour
         playernameTMP = playername.GetComponent<TextMeshProUGUI>();
         id = (int) transform.parent.GetComponent<NetworkObject>().OwnerClientId;
 
-        if (transform.parent.GetComponent<NetworkObject>().IsOwner)
+        if (network.localPlay || transform.parent.GetComponent<NetworkObject>().IsOwner)
             gameObject.SetActive(false);
 
         playernameTMP.text = "Player " + id;

@@ -50,11 +50,11 @@ public class CollectActivity : MonoBehaviour
 
     void Awake()
     {
-        master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
-        network = master.ManagerObject(Manager.type.network).GetComponent<PlayerNetwork>();
-        input = master.ManagerObject(Manager.type.input).GetComponent<InputManager>();
-        sound = master.ManagerObject(Manager.type.sound).GetComponent<SoundManager>();
-        UI = master.ManagerObject(Manager.type.UI).GetComponent<UIManager>();
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        network = master.network;
+        input = master.input;
+        sound = master.sound;
+        UI = master.UI;
 
         starScript = transform.Find("[Stars]").GetComponent<CollectCheckpointStar>();
         diamondScript = transform.Find("[Diamonds]").GetComponent<CollectCheckpointDiamond>();

@@ -1,9 +1,7 @@
+using DG.Tweening.Plugins.Options;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -14,19 +12,21 @@ using static InputManager;
 public class UIManager : MonoBehaviour
 {
     GameMaster master;
+    PlayerNetwork network;
     InputManager input;
     ActivityOption activityOption;
 
     [SerializeField] GameObject canvas;
-    [SerializeField] GameObject screen;
-    [SerializeField] GameObject gameUI;
-    [SerializeField] GameObject options;
+    [SerializeField] CanvasGroup screen;
+    [SerializeField] CanvasGroup gameUI;
+    [SerializeField] CanvasGroup options;
 
     [Header("Screen")]
     public bool toogleHUD = true;
     [SerializeField] GameObject blackScreen;
     [SerializeField] GameObject whiteScreen;
     [SerializeField] GameObject blackFadeOverlay;
+    [SerializeField] GameObject blackOverlay;
 
     [Header("HUD")]
     [SerializeField] public Text speed;
@@ -35,6 +35,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text gameSateTMP;
     [SerializeField] TMP_Text toggleOptionsTMP;
     [SerializeField] TMP_Text exitHintTMP;
+
+    [Header("Options")]
+    [SerializeField] RawImage protoTaxi;
+    [SerializeField] Texture[] protoTaxiColors;
+    [SerializeField] GameObject colorOptionsPanel;
+    [SerializeField] GameObject[] colors;
+    TMP_Text[] colorSelectTMP;
 
     [Header("Activity Trigger")]
     [SerializeField] GameObject activityTriggerTypeIcon;
@@ -74,7 +81,7 @@ public class UIManager : MonoBehaviour
     public AnimationClip[] clips;
 
     /* Button Prompts */
-    bool promptsInit1 = false;
+    bool promptsFirstInit = false;
     [HideInInspector] public bool promptsInitialized = false;
     string prompt_startActivity;
     string prompt_adjustActivity;
@@ -93,14 +100,20 @@ public class UIManager : MonoBehaviour
     /* Hunt UI  */
     int hunt_initialPoint;
 
-    bool toggleOptions = false;
+    bool toggleOptions = true;
     float returnSessionTime;
 
     void Awake()
     {
-        master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
-        input = master.ManagerObject(Manager.type.input).GetComponent<InputManager>();
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        network = master.network;
+        input = master.input;
         activityOption = GameObject.Find("[Activity Triggers]").GetComponent<ActivityOption>();
+
+        // Get the select text for each color option
+        colorSelectTMP = new TMP_Text[colors.Length];
+        for (int i = 0; i < colors.Length; i++)
+            colorSelectTMP[i] = colors[i].transform.Find("[Select]").GetComponent<TextMeshProUGUI>();
 
         // Get the trigger canvas for each activity
         activityTriggerCanvas = new GameObject[master.activityList.Length];
@@ -120,9 +133,7 @@ public class UIManager : MonoBehaviour
     {
         AnimationsInitial();
         ChangeButtonType(inputType.MouseKeyboard);
-
-        options.GetComponent<CanvasGroup>().alpha = (toggleOptions) ? 1 : 0;
-        options.GetComponent<CanvasGroup>().blocksRaycasts = toggleOptions;
+        CanvasGroupToggle(options, toggleOptions);
         huntSpeedLimitTMP.enabled = false;
     }
 
@@ -131,6 +142,7 @@ public class UIManager : MonoBehaviour
         // Screen
         Initial(blackScreen, "Fade Black Initial", 0, 1.0f);
         Initial(whiteScreen, "White Flash Initial", 0, 1.0f);
+
         // Game UI
         HideActivityInfo();
         foreach (var canvas in activityTriggerCanvas)
@@ -144,21 +156,29 @@ public class UIManager : MonoBehaviour
         Initial(activityCountdownZero, "Activity Countdown Start Initial", 0, 1.0f);
         Initial(activityProgress, "Activity UI Initial", 0, 0.0f);
         Initial(activityResult, "Activity UI Initial", 0, 0.0f);
+
+        // Options
+        foreach (var color in colors)
+            Initial(color, "Color Option Initial", 0, 0.0f);
     }
 
     void Update()
     {
-        InitializePromptText();
-
         if (input.ToggleHUD()) ToggleHUD();
-
+        InitializePromptText();
         UpdatePromptText();
 
-        if (Input.GetKeyDown(KeyCode.Tab) || input.GamepadUpButton())
+        if (master.ready)
         {
-            toggleOptions = !toggleOptions;
-            options.GetComponent<CanvasGroup>().alpha = (toggleOptions) ? 1 : 0;
-            options.GetComponent<CanvasGroup>().blocksRaycasts = toggleOptions;
+            if (input.ToggleOptions())
+            {
+                toggleOptions = !toggleOptions;
+                ToggleOptions(toggleOptions);
+            }
+        }
+        else
+        {
+            blackOverlay.SetActive(true);
         }
 
         exitHintTMP.enabled = input.allowExitActivity;
@@ -173,14 +193,26 @@ public class UIManager : MonoBehaviour
     void ToggleHUD()
     {
         toogleHUD = !toogleHUD;
-        int alpha = toogleHUD ? 1 : 0;
-        canvas.GetComponent<CanvasGroup>().alpha = alpha;
+        CanvasGroupToggle(canvas.GetComponent<CanvasGroup>(), toogleHUD);
+    }
+
+    void ToggleOptions(bool state)
+    {
+        CanvasGroupToggle(options, state);
+        blackOverlay.SetActive(state);
     }
 
     public void DisplayGameSate(string state)
     {
         gameSateTMP.text = state;
     }
+
+    public void EnterSession()
+    {
+        ToggleOptions(false);
+    }
+
+    #region Button Prompts
 
     public void ChangeButtonType(inputType type)
     {
@@ -210,11 +242,11 @@ public class UIManager : MonoBehaviour
 
     void InitializePromptText()
     {
-        if (!promptsInit1)
+        if (!promptsFirstInit)
         {
             ChangeButtonType(inputType.Gamepad);
             PromptsInitial("Show");
-            promptsInit1 = true;
+            promptsFirstInit = true;
         }
         else if (!promptsInitialized)
         {
@@ -247,6 +279,10 @@ public class UIManager : MonoBehaviour
         exitHintTMP.text = prompt_exitHint + " - Exit Activity";
     }
 
+    #endregion
+
+    #region Initial / Show / Hide
+
     void Initial(GameObject user, string stateName, int layer, float normalizedTime)
     {
         user.GetComponent<Animator>().Play(stateName, layer, normalizedTime);
@@ -275,6 +311,41 @@ public class UIManager : MonoBehaviour
         if (user.GetComponent<RawImage>() != null) user.GetComponent<RawImage>().enabled = visibility;
         if (user.GetComponent<TextMeshProUGUI>() != null) user.GetComponent<TextMeshProUGUI>().enabled = visibility;
     }
+
+    #endregion
+
+    #region Options
+
+    public void OnColorOptionHover(GameObject colorOption)
+    {
+        int i = Array.IndexOf(colors, colorOption);
+        if (i == network.playerColorIndex.Value) return;
+        Show(colors[i], "Color Option In", 0, 0.0f);
+    }
+
+    public void OnColorOptionExit(GameObject colorOption)
+    {
+        int i = Array.IndexOf(colors, colorOption);
+        if (i == network.playerColorIndex.Value) return;
+        Hide(colors[i], "Color Option Out", 0, 0.0f);
+    }
+
+    public void SelectColorOption(int prev, int current)
+    {
+        if (prev != -1)
+        {
+            Hide(colors[prev], "Color Option Out", 0, 0.0f);
+            colorSelectTMP[prev].text = "Select";
+        }
+        Show(colors[current], "Color Option Initial", 0, 1.0f);
+        colorSelectTMP[current].text = "Selected";
+
+        protoTaxi.texture = protoTaxiColors[current];
+    }
+
+    #endregion
+
+    #region Activity
 
     public void UpdateActivityOptions(int index)
     {
@@ -369,7 +440,9 @@ public class UIManager : MonoBehaviour
         if (type == "Initial") Initial(activityProgress, "Activity UI Initial", 0, 0.0f);
     }
 
-    // Info (Activity) UI:
+    #endregion
+
+    #region Info (Activity) UI
     // Info of this activity that do not need to be continuously updated during the activity.
     public void InfoRaceUI(int totalLap, int totalCheckpoint)
     {
@@ -387,7 +460,9 @@ public class UIManager : MonoBehaviour
         hunt_initialPoint = initialPoint;
     }
 
-    // Update (Activity) UI:
+    #endregion
+
+    #region Update (Activity) UI
     // Variables that are continuously updated during the activity.
 
     public void UpdateRaceDestinationUI(int currentCheckpoint, float raceTime)
@@ -413,12 +488,14 @@ public class UIManager : MonoBehaviour
 
     public void UpdateHuntUI(int point, float remainingTime)
     {
-        countTMP.text = Methods.TimeFormat(remainingTime, false);  point.ToString();
+        countTMP.text = Methods.TimeFormat(remainingTime, false); point.ToString();
         checkpointTMP.text = "Points remaining: " + point.ToString();
         timeTMP.text = "";
     }
 
-    // Result (Activity) UI:
+    #endregion
+
+    #region Result (Activity) UI
     // Variables that are recorded upon completion of the activity.
 
     public void ResultRaceUI(int index, float raceTime, float currentTime)
@@ -470,6 +547,8 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    #endregion
+
     public void FadeBlack(string type)
     {
         if (type == "In") Show(blackScreen, "Fade In Black", 0, 0.0f);
@@ -515,5 +594,13 @@ public class UIManager : MonoBehaviour
                 return i; // The index
         }
         return -1; // It is not in the list
+    }
+
+    void CanvasGroupToggle(CanvasGroup canvasGroup, bool state)
+    {
+        int a = (state) ? 1 : 0;
+        canvasGroup.alpha = a;
+        canvasGroup.interactable = state;
+        canvasGroup.blocksRaycasts = state;
     }
 }

@@ -4,11 +4,18 @@ using UnityEngine;
 
 public class Misc : MonoBehaviour
 {
+    GameMaster master;
+    InputManager input;
+
     bool toggleConsole = false;
 
     void Awake()
     {
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        input = master.input;
+
         // Help static classes to call Awake() for their initialization
+        Methods.Awake();
         CheckpointCol.Awake();
     }
 
@@ -20,7 +27,7 @@ public class Misc : MonoBehaviour
     void Update()
     {
         // Debug console visibility
-        if (Input.GetKeyDown(KeyCode.F1))
+        if (input.ToggleConsole())
         {
             toggleConsole = !toggleConsole;
             GameObject.Find("IngameDebugConsole").GetComponent<Canvas>().enabled = toggleConsole;

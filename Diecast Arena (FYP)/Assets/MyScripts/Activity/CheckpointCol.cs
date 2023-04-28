@@ -16,7 +16,7 @@ public static class CheckpointCol
 
     public static void Awake()
     {
-        master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
     }
 
     public static float FadeCloserValue(Vector3 userPos, float colliderRadius)

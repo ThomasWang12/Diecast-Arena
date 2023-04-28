@@ -11,11 +11,12 @@ using UnityEngine.UI;
 
 public class GameMaster : MonoBehaviour
 {
-    PlayerNetwork network;
-    InputManager input;
-    SoundManager sound;
-    UIManager UI;
-    Common common;
+    [HideInInspector] public PlayerNetwork network;
+    [HideInInspector] public InputManager input;
+    [HideInInspector] public VehicleManager vehicle;
+    [HideInInspector] public SoundManager sound;
+    [HideInInspector] public UIManager UI;
+    [HideInInspector] public Common common;
 
     [Header("Game State")]
     public gameState currentState;
@@ -72,11 +73,12 @@ public class GameMaster : MonoBehaviour
 
     void Awake()
     {
-        network = ManagerObject(Manager.type.network).GetComponent<PlayerNetwork>();
-        input = ManagerObject(Manager.type.input).GetComponent<InputManager>();
-        sound = ManagerObject(Manager.type.sound).GetComponent<SoundManager>();
-        UI = ManagerObject(Manager.type.UI).GetComponent<UIManager>();
-        common = ManagerObject(Manager.type.common).GetComponent<Common>();
+        network = GameObject.Find("Player Network").GetComponent<PlayerNetwork>();
+        input = GameObject.Find("Input Manager").GetComponent<InputManager>();
+        vehicle = GameObject.Find("Vehicle Manager").GetComponent<VehicleManager>();
+        sound = GameObject.Find("Sound Manager").GetComponent<SoundManager>();
+        UI = GameObject.Find("UI Manager").GetComponent<UIManager>();
+        common = transform.Find("Common").gameObject.GetComponent<Common>();
 
         // Get the trigger object for each activity
         for (int i = 0; i < activityList.Length; i++)
@@ -92,17 +94,6 @@ public class GameMaster : MonoBehaviour
         trafficLightControl = GameObject.Find("Traffic Light Control").GetComponent<TrafficLightControl>();
     }
 
-    // Centralize the method of getting managers in scripts
-    public GameObject ManagerObject(Manager.type type)
-    {
-        if (type == Manager.type.network) return GameObject.Find("Player Network");
-        if (type == Manager.type.input) return GameObject.Find("Input Manager");
-        if (type == Manager.type.sound) return GameObject.Find("Sound Manager");
-        if (type == Manager.type.UI) return GameObject.Find("UI Manager");
-        if (type == Manager.type.common) return transform.Find("Common").gameObject;
-        return null;
-    }
-
     void Start()
     {
         UpdateGameState(gameState.Menu);
@@ -113,9 +104,17 @@ public class GameMaster : MonoBehaviour
     {
         Methods.DefaultPlayerNames();
 
-        player = Methods.FindOwnedPlayer();
+        // %& Local Play / Network
+        if (network.localPlay)
+            player = GameObject.FindWithTag("Player");
+        else player = Methods.FindOwnedPlayer();
         vehicleGearbox = player.transform.Find("chassis").transform.Find("transmission").GetComponent<GearboxTransmission>();
+
+        vehicle.playerColor = player.transform.Find("network").GetComponent<PlayerColor>();
+        vehicle.ApplyPlayerColor(network.playerColorIndex.Value);
         cam = Camera.main;
+        cam.fieldOfView = 60;
+        UI.EnterSession();
 
         if (player != null)
         {

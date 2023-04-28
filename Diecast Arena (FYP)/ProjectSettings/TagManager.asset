@@ -6,8 +6,7 @@ TagManager:
   tags:
   - Underside
   - Pop Tire
-  - GameManager
-  - PlayerNetwork
+  - GameMaster
   - Activity
   layers:
   - Default
@@ -16,7 +15,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - PostProcessing
   - 
   - Ignore Wheel Cast
   - Vehicles

@@ -13,7 +13,7 @@ public class MenuCamera : MonoBehaviour
 
     void Awake()
     {
-        master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
     }
 
     void Start()

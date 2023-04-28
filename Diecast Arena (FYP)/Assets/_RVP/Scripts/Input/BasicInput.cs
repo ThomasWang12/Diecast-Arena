@@ -15,6 +15,7 @@ namespace RVP
     public class BasicInput : NetworkBehaviour // #% Mono -> Network
     {
         GameMaster master;
+        PlayerNetwork network;
         InputManager input;
 
         VehicleParent vp;
@@ -33,8 +34,9 @@ namespace RVP
         {
             if (SceneManager.GetActiveScene().name == Common.mainSceneName)
             {
-                master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
-                input = master.ManagerObject(Manager.type.input).GetComponent<InputManager>();
+                master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+                network = master.network;
+                input = master.input;
             }
 
             vp = GetComponent<VehicleParent>();
@@ -42,7 +44,10 @@ namespace RVP
 
         void Update()
         {
-            if (!IsOwner) return;
+            if (!network.localPlay)
+            {
+                if (!IsOwner) return;
+            }
 
             // Get single-frame input presses
 
@@ -63,7 +68,10 @@ namespace RVP
 
         void FixedUpdate()
         {
-            if (!IsOwner) return;
+            if (!network.localPlay)
+            {
+                if (!IsOwner) return;
+            }
 
             // Get constant inputs
 

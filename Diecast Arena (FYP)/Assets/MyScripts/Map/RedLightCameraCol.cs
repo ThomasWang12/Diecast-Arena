@@ -17,9 +17,9 @@ public class RedLightCameraCol : MonoBehaviour
 
     void Awake()
     {
-        master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
-        UI = master.ManagerObject(Manager.type.UI).GetComponent<UIManager>();
-        sound = master.ManagerObject(Manager.type.sound).GetComponent<SoundManager>();
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        UI = master.UI;
+        sound = master.sound;
 
         control = transform.parent.GetComponent<TrafficLightControl>();
     }

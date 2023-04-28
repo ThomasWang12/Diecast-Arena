@@ -32,8 +32,8 @@ public class InputManager : MonoBehaviour
 
     void Awake()
     {
-        master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
-        UI = master.ManagerObject(Manager.type.UI).GetComponent<UIManager>();
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        UI = master.UI;
     }
 
     void Start()
@@ -68,6 +68,8 @@ public class InputManager : MonoBehaviour
         if (Mathf.Abs(Input.GetAxisRaw("Gamepad Up/Down Buttons")) < deadzero)
             padAxis7Pressed = false;
     }
+
+    #region Input Type
 
     void OnGUI()
     {
@@ -149,6 +151,8 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    #endregion
+
     public void ForceBrake()
     {
         allowDrive = false;
@@ -161,11 +165,25 @@ public class InputManager : MonoBehaviour
         forceBrake = false;
     }
 
+    public bool ToggleConsole()
+    {
+        if (Input.GetKeyDown(KeyCode.F1)) return true;
+        return false;
+    }
+
     public bool ToggleHUD()
     {
         if (!allowInput) return false;
 
         if (Input.GetKeyDown(KeyCode.F2)) return true;
+        return false;
+    }
+
+    public bool ToggleOptions()
+    {
+        if (!allowInput) return false;
+
+        if (Input.GetKeyDown(KeyCode.Tab) || GamepadUpButton()) return true;
         return false;
     }
 

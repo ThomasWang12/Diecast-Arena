@@ -26,6 +26,16 @@ namespace RVP
         public Toggle camToggle;
         public VehicleHud hud;
 
+        // #% My Variables
+        GameMaster master;
+        PlayerNetwork network;
+
+        void Awake()
+        {
+            master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+            network = master.network;
+        }
+
         void Update()
         {
             cam.stayFlat = camToggle.isOn;
@@ -38,11 +48,18 @@ namespace RVP
             spawnPoint = (spawnPos == null) ? spawnPoint : spawnPos.transform.position; // #%
             spawnRot = (spawnPos == null) ? spawnRot : new Vector3(Methods.WrapAngle(spawnPos.transform.rotation.y), 0, 0); // #%
             Quaternion dir = (spawnRot.x == 0) ? Quaternion.identity : Quaternion.LookRotation(spawnRot, GlobalControl.worldUpDir); // #%
-            //newVehicle = Instantiate(vehicles[vehicle], spawnPoint + Common.spawnHeightOffset, dir) as GameObject;
 
-            // #% Network
-            newVehicle = Methods.FindOwnedPlayer();
-            int id = (int) newVehicle.GetComponent<NetworkObject>().OwnerClientId;
+            // %& Local Play / Network
+            if (network.localPlay)
+            {
+                newVehicle = Instantiate(vehicles[vehicle], spawnPoint + Common.spawnHeightOffset, dir) as GameObject;
+            }
+            else
+            {
+                newVehicle = Methods.FindOwnedPlayer();
+            }
+
+            int id = (int)newVehicle.GetComponent<NetworkObject>().OwnerClientId;
             newVehicle.name = "Player " + id + " Vehicle";
 
             cam.target = newVehicle.transform;

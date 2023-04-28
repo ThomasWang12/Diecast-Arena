@@ -21,9 +21,9 @@ public class ActivityOption : MonoBehaviour
 
     void Awake()
     {
-        master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
-        input = master.ManagerObject(Manager.type.input).GetComponent<InputManager>();
-        UI = master.ManagerObject(Manager.type.UI).GetComponent<UIManager>();
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        input = master.input;
+        UI = master.UI;
     }
 
     void Start()

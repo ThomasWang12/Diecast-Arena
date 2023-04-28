@@ -27,10 +27,10 @@ public class ActivityTrigger : MonoBehaviour
 
     void Awake()
     {
-        master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
-        network = master.ManagerObject(Manager.type.network).GetComponent<PlayerNetwork>();
-        input = master.ManagerObject(Manager.type.input).GetComponent<InputManager>();
-        UI = master.ManagerObject(Manager.type.UI).GetComponent<UIManager>();
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        network = master.network;
+        input = master.input;
+        UI = master.UI;
         activityOption = transform.parent.GetComponent<ActivityOption>();
         triggerMat = GetComponent<MeshRenderer>().material;
         canvas = Methods.GetChildContainsName(gameObject, "[Canvas]").GetComponent<Canvas>();
@@ -68,7 +68,12 @@ public class ActivityTrigger : MonoBehaviour
             if (master.activityList[activityIndex].type == activityType.CarHunt)
                 currentOption = activityOption.currentHuntDuration;
 
-            network.EnterActivityServerRpc(activityIndex, currentOption);
+            if (network.localPlay)
+            {
+                activityOption.ApplyOptions(activityIndex, currentOption);
+                master.EnterActivity(activityIndex);
+            }
+            else network.EnterActivityServerRpc(activityIndex, currentOption);
         }
     }
 

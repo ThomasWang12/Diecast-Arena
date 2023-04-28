@@ -12,6 +12,15 @@ using Random = UnityEngine.Random;
 
 public static class Methods
 {
+    static GameMaster master;
+    static PlayerNetwork network;
+
+    public static void Awake()
+    {
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        network = master.network;
+    }
+
     public static float Map(float value, float from1, float to1, float from2, float to2)
     {
         return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
@@ -81,7 +90,10 @@ public static class Methods
     public static bool IsOwnedPlayer(Collider other)
     {
         if (other.tag == "Player")
-            return other.GetComponent<NetworkObject>().IsOwner;
+        {
+            if (network.localPlay) return true;
+            else return other.GetComponent<NetworkObject>().IsOwner;
+        }
         else return false;
     }
 

@@ -51,9 +51,9 @@ public class CollectCheckpointCol : MonoBehaviour
 
     void Awake()
     {
-        master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
-        network = master.ManagerObject(Manager.type.network).GetComponent<PlayerNetwork>();
-        common = master.ManagerObject(Manager.type.common).GetComponent<Common>();
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        network = master.network;
+        common = master.common;
         collect = Methods.FindParentWithTagRecursive(gameObject, "Activity").GetComponent<CollectActivity>();
         checkpoint = transform.parent.gameObject;
         checkpointVisualMat = Methods.GetChildContainsName(checkpoint, "[Visual]").GetComponent<MeshRenderer>().material;

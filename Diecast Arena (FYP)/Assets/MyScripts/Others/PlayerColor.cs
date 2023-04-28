@@ -1,19 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Rendering;
 
-public class PlayerColor : NetworkBehaviour
+public class PlayerColor : MonoBehaviour
 {
-    [SerializeField] Texture yellowCar;
-    [SerializeField] Texture redCar;
-    [SerializeField] Texture blueCar;
+    [SerializeField] Texture[] colorTextures;
+    [SerializeField] Texture[] colorTexturesSupp;
+    [SerializeField] GameObject[] colorParts;
 
-    public override void OnNetworkSpawn()
+    public void ApplyColor(int i)
     {
-        if (OwnerClientId == 0) GetComponent<Renderer>().material.SetTexture("_BaseMap", yellowCar);
-        if (OwnerClientId == 1) GetComponent<Renderer>().material.SetTexture("_BaseMap", redCar);
-        if (OwnerClientId == 2) GetComponent<Renderer>().material.SetTexture("_BaseMap", blueCar);
+        foreach (var part in colorParts)
+        {
+            // Change texture for "Paint" material (Element 1 in the Materials list)
+            part.GetComponent<MeshRenderer>().materials[1].SetTexture("_BaseMap", colorTextures[i]);
+            // Change texture for "Paint Trunk" material (Element 7 in the Materials list)
+            part.GetComponent<MeshRenderer>().materials[7].SetTexture("_BaseMap", colorTexturesSupp[i]);
+        }
     }
 }

@@ -29,8 +29,8 @@ public class RaceCheckpointCol : MonoBehaviour
 
     void Awake()
     {
-        master = GameObject.FindWithTag("GameManager").GetComponent<GameMaster>();
-        common = master.ManagerObject(Manager.type.common).GetComponent<Common>();
+        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        common = master.common;
         race = transform.parent.parent.parent.GetComponent<RaceActivity>();
         checkpoint = transform.parent.gameObject;
         checkpointVisualMat = Methods.GetChildContainsName(checkpoint, "[Visual]").GetComponent<MeshRenderer>().material;
