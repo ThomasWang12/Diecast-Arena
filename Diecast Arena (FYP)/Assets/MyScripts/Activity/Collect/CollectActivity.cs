@@ -63,8 +63,8 @@ public class CollectActivity : MonoBehaviour
     void Start()
     {
         activityIndex = master.ActivityObjectToIndex(gameObject);
-        startPos = Methods.GetStartPosition(transform.Find("[Start Position]").gameObject, network.ownerPlayerId).transform.position;
-        startRot = Methods.GetStartPosition(transform.Find("[Start Position]").gameObject, network.ownerPlayerId).transform.rotation;
+        //startPos = Methods.GetStartPosition(transform.Find("[Start Position]").gameObject, network.ownerPlayerId).transform.position;
+        //startRot = Methods.GetStartPosition(transform.Find("[Start Position]").gameObject, network.ownerPlayerId).transform.rotation;
         InitializeCheckpoints();
         totalCheckpoint = Mathf.Clamp(totalCheckpoint, 0, checkpointsAll.Count);
         totalDiamond = Mathf.Clamp(totalDiamond, 0, totalCheckpoint);
@@ -92,7 +92,7 @@ public class CollectActivity : MonoBehaviour
                 master.FinishActivity(activityIndex);
                 UI.ActivityCountdown5("Initial");
                 UI.ActivityCountdown("TIME'S UP");
-                UI.ResultCollectUI(activityIndex, score, false, Time.time);
+                UI.ResultCollectUI(activityIndex, score, false);
             }
         }
     }
@@ -226,6 +226,8 @@ public class CollectActivity : MonoBehaviour
     {
         if (!initialized) InitializeCheckpoints();
         SelectCheckpoints();
+        startPos = Methods.GetStartPosition(transform.Find("[Start Position]").gameObject, network.ownerPlayerId).transform.position;
+        startRot = Methods.GetStartPosition(transform.Find("[Start Position]").gameObject, network.ownerPlayerId).transform.rotation;
         master.TeleportPlayer(startPos + Common.spawnHeightOffset, startRot);
         UI.InfoCollectUI(totalCheckpoint);
     }
@@ -258,7 +260,7 @@ public class CollectActivity : MonoBehaviour
             finished = true;
             SetAllCheckpoints(false);
             master.FinishActivity(activityIndex);
-            UI.ResultCollectUI(activityIndex, score, true, Time.time);
+            UI.ResultCollectUI(activityIndex, score, true);
             sound.Play(Sound.name.CheckpointBold);
 
             // In case it is during countdown when finishing

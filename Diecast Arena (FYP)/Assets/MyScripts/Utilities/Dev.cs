@@ -11,5 +11,5 @@ public static class Dev
 
 public static class Manager
 {
-    public enum type { network, input, vehicle, sound, UI, common };
+    public enum type { network, input, vehicle, sound, UI, postFX, common };
 }

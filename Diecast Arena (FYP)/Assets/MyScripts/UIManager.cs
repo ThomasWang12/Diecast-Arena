@@ -1,11 +1,11 @@
-using DG.Tweening.Plugins.Options;
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 using static GameMaster;
 using static InputManager;
 
@@ -14,15 +14,18 @@ public class UIManager : MonoBehaviour
     GameMaster master;
     PlayerNetwork network;
     InputManager input;
+    SoundManager sound;
+    VehicleManager vehicle;
     ActivityOption activityOption;
 
     [SerializeField] GameObject canvas;
     [SerializeField] CanvasGroup screen;
+    [SerializeField] CanvasGroup HUD;
     [SerializeField] CanvasGroup gameUI;
     [SerializeField] CanvasGroup options;
+    [SerializeField] CanvasGroup controls;
 
     [Header("Screen")]
-    public bool toogleHUD = true;
     [SerializeField] GameObject blackScreen;
     [SerializeField] GameObject whiteScreen;
     [SerializeField] GameObject blackFadeOverlay;
@@ -35,15 +38,19 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text gameSateTMP;
     [SerializeField] TMP_Text toggleOptionsTMP;
     [SerializeField] TMP_Text exitHintTMP;
+    [SerializeField] public TMP_Text gameMessageTMP;
 
     [Header("Options")]
     [SerializeField] RawImage protoTaxi;
     [SerializeField] Texture[] protoTaxiColors;
+    [SerializeField] GameObject changePlayerName;
+    [SerializeField] GameObject changeTaxiColor;
     [SerializeField] GameObject colorOptionsPanel;
     [SerializeField] GameObject[] colors;
     TMP_Text[] colorSelectTMP;
 
     [Header("Activity Trigger")]
+    [SerializeField] CanvasGroup activityTrigger;
     [SerializeField] GameObject activityTriggerTypeIcon;
     [SerializeField] GameObject activityTriggerTypeText;
     [SerializeField] GameObject activityName;
@@ -70,7 +77,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text activityNameTMP;
     [SerializeField] TMP_Text finishRankTMP;
     [SerializeField] TMP_Text playerResultTMP;
-    [SerializeField] public TMP_Text returnSessionTMP;
 
     [Header("Icons")]
     [SerializeField] Texture activityIconRace;
@@ -86,7 +92,11 @@ public class UIManager : MonoBehaviour
     string prompt_startActivity;
     string prompt_adjustActivity;
     string prompt_toggleOptions;
+    string prompt_toggleControls;
     string prompt_exitHint;
+    string prompt_exitHintToggle;
+    string prompt_exitActivity;
+    string prompt_returnSession;
     TMP_Text activityPressStartTMP;
     TMP_Text activityPressAdjustTMP;
 
@@ -100,14 +110,24 @@ public class UIManager : MonoBehaviour
     /* Hunt UI  */
     int hunt_initialPoint;
 
+    bool toggleUI = true;
     bool toggleOptions = true;
+    bool toggleControls = false;
+    [HideInInspector] public bool msg_quitGame = false;
+    [HideInInspector] public bool msg_exitActivity = false;
+    bool msg_returnSession = false;
     float returnSessionTime;
+
+    /* Tunables */
+    float activityTriggerFade = 0.1f;
 
     void Awake()
     {
         master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
         network = master.network;
         input = master.input;
+        sound = master.sound;
+        vehicle = master.vehicle;
         activityOption = GameObject.Find("[Activity Triggers]").GetComponent<ActivityOption>();
 
         // Get the select text for each color option
@@ -133,7 +153,9 @@ public class UIManager : MonoBehaviour
     {
         AnimationsInitial();
         ChangeButtonType(inputType.MouseKeyboard);
+        CanvasGroupToggle(HUD, false);
         CanvasGroupToggle(options, toggleOptions);
+        CanvasGroupToggle(controls, toggleControls);
         huntSpeedLimitTMP.enabled = false;
     }
 
@@ -164,42 +186,85 @@ public class UIManager : MonoBehaviour
 
     void Update()
     {
-        if (input.ToggleHUD()) ToggleHUD();
+        // Toggle UI
+        if (input.ToggleUI())
+        {
+            toggleUI = !toggleUI;
+            ToggleUI(toggleUI);
+        }
+
         InitializePromptText();
         UpdatePromptText();
 
         if (master.ready)
         {
-            if (input.ToggleOptions())
+            if (input.ToggleOptions() && !toggleControls)
             {
                 toggleOptions = !toggleOptions;
                 ToggleOptions(toggleOptions);
             }
-        }
-        else
-        {
-            blackOverlay.SetActive(true);
+
+            if (input.ToggleControls() && !toggleOptions)
+            {
+                toggleControls = !toggleControls;
+                ToggleControls(toggleControls);
+            }
         }
 
+        gameSateTMP.enabled = master.ready;
+        toggleOptionsTMP.enabled = master.ready;
+        blackOverlay.SetActive(!master.ready);
+
+        activityTrigger.alpha = (toggleOptions || toggleControls) ? activityTriggerFade : 1;
         exitHintTMP.enabled = input.allowExitActivity;
 
-        if (returnSessionTMP.isActiveAndEnabled)
+        // Game Message
+        gameMessageTMP.enabled = msg_quitGame || msg_exitActivity || msg_returnSession;
+        if (msg_quitGame)
         {
-            int remaining = Mathf.FloorToInt(returnSessionTime + master.activityFinishWaitDuration - Time.time);
-            returnSessionTMP.text = "Return to session (0:0" + remaining + ")";
+            gameMessageTMP.text = "Quit to Desktop?" + "\n" + "No [Esc] / Yes [Enter]";
+        }
+        if (msg_exitActivity)
+        {
+            gameMessageTMP.text = "Exit activity?" + "\n" + "No " + prompt_exitHintToggle + " / Yes " + prompt_exitActivity;
+        }
+        if (msg_returnSession)
+        {
+            if (input.ExitActivity()) msg_returnSession = false;
+            if (returnSessionTime >= Time.time)
+            {
+                int remaining = Mathf.FloorToInt(returnSessionTime - Time.time);
+                gameMessageTMP.text = "Press " + prompt_returnSession + " to return to session (0:0" + remaining + ")";
+            }
+            else msg_returnSession = false;
         }
     }
 
-    void ToggleHUD()
+    public void ToggleUI(bool state)
     {
-        toogleHUD = !toogleHUD;
-        CanvasGroupToggle(canvas.GetComponent<CanvasGroup>(), toogleHUD);
+        CanvasGroupToggle(canvas.GetComponent<CanvasGroup>(), state);
+    }
+
+    public void Toggles(bool state)
+    {
+        ToggleOptions(state);
+        ToggleControls(state);
     }
 
     void ToggleOptions(bool state)
     {
+        toggleOptions = state;
         CanvasGroupToggle(options, state);
         blackOverlay.SetActive(state);
+        master.postFX.ToggleDOV(state);
+    }
+
+    void ToggleControls(bool state)
+    {
+        toggleControls = state;
+        CanvasGroupToggle(controls, state);
+        blackOverlay.SetActive(state);
+        master.postFX.ToggleDOV(state);
     }
 
     public void DisplayGameSate(string state)
@@ -209,7 +274,12 @@ public class UIManager : MonoBehaviour
 
     public void EnterSession()
     {
+        CanvasGroupToggle(HUD, true);
         ToggleOptions(false);
+        protoTaxi.enabled = false;
+        changePlayerName.GetComponent<RectTransform>().localPosition = new Vector2(-650, 150);
+        changeTaxiColor.GetComponent<RectTransform>().localPosition = new Vector2(-650, 0);
+        colorOptionsPanel.GetComponent<RectTransform>().localPosition = new Vector2(-650, -60);
     }
 
     #region Button Prompts
@@ -221,7 +291,11 @@ public class UIManager : MonoBehaviour
             prompt_startActivity = "E";
             prompt_adjustActivity = "+/-";
             prompt_toggleOptions = "Tab";
+            prompt_toggleControls = "Ctrl";
             prompt_exitHint = "Esc";
+            prompt_exitHintToggle = "[Esc]";
+            prompt_exitActivity = "[Enter]";
+            prompt_returnSession = "E";
         }
 
         if (type == inputType.Gamepad)
@@ -229,7 +303,11 @@ public class UIManager : MonoBehaviour
             prompt_startActivity = ControllerFont('x');
             prompt_adjustActivity = ControllerFont('V');
             prompt_toggleOptions = ControllerFont('W');
+            prompt_toggleControls = ControllerFont('m');
             prompt_exitHint = ControllerFont('v');
+            prompt_exitHintToggle = ControllerFont('v');
+            prompt_exitActivity = ControllerFont('x');
+            prompt_returnSession = ControllerFont('x');
         }
     }
 
@@ -255,7 +333,7 @@ public class UIManager : MonoBehaviour
             promptsInitialized = true;
         }
 
-        // Button Prompt Texts that use controller font should be listed here to be initialized
+        // Button Prompt Texts that are animated should be listed here to be initialized
         void PromptsInitial(string type)
         {
             if (type == "Show")
@@ -275,7 +353,7 @@ public class UIManager : MonoBehaviour
     {
         activityPressStartTMP.text = "Press " + prompt_startActivity + " to start";
         activityPressAdjustTMP.text = "Press " + prompt_adjustActivity + " to adjust";
-        toggleOptionsTMP.text = prompt_toggleOptions + " - Options";
+        toggleOptionsTMP.text = prompt_toggleOptions + " - Options" + "     " + prompt_toggleControls + " - Controls";
         exitHintTMP.text = prompt_exitHint + " - Exit Activity";
     }
 
@@ -319,14 +397,15 @@ public class UIManager : MonoBehaviour
     public void OnColorOptionHover(GameObject colorOption)
     {
         int i = Array.IndexOf(colors, colorOption);
-        if (i == network.playerColorIndex.Value) return;
+        if (i == vehicle.playerColorIndex) return;
         Show(colors[i], "Color Option In", 0, 0.0f);
+        sound.Play(Sound.name.Select);
     }
 
     public void OnColorOptionExit(GameObject colorOption)
     {
         int i = Array.IndexOf(colors, colorOption);
-        if (i == network.playerColorIndex.Value) return;
+        if (i == vehicle.playerColorIndex) return;
         Hide(colors[i], "Color Option Out", 0, 0.0f);
     }
 
@@ -498,34 +577,28 @@ public class UIManager : MonoBehaviour
     #region Result (Activity) UI
     // Variables that are recorded upon completion of the activity.
 
-    public void ResultRaceUI(int index, float raceTime, float currentTime)
+    public void ResultRaceUI(int index, float raceTime)
     {
         activityFinishTypeIcon.texture = ActivityTypeIcon(master.activityList[index].type);
         activityNameTMP.text = master.activityList[index].name;
         finishRankTMP.text = "FINISH";
         playerResultTMP.text = Methods.TimeFormat(raceTime, true) + " | Player";
-        returnSessionTime = currentTime;
-        returnSessionTMP.enabled = true;
     }
 
-    public void ResultCollectUI(int index, int score, bool cleared, float currentTime)
+    public void ResultCollectUI(int index, int score, bool cleared)
     {
         activityFinishTypeIcon.texture = ActivityTypeIcon(master.activityList[index].type);
         activityNameTMP.text = master.activityList[index].name;
         finishRankTMP.text = (cleared) ? "CLEAR!" : "FINISH";
         playerResultTMP.text = score + " | Player";
-        returnSessionTime = currentTime;
-        returnSessionTMP.enabled = true;
     }
 
-    public void ResultHuntUI(int index, int point, bool win, float remainingTime, float currentTime)
+    public void ResultHuntUI(int index, int point, bool win, float remainingTime)
     {
         activityFinishTypeIcon.texture = ActivityTypeIcon(master.activityList[index].type);
         activityNameTMP.text = master.activityList[index].name;
         finishRankTMP.text = (win) ? "WIN" : "BUSTED!"; // for hunter: WIN / LOSE
         playerResultTMP.text = Methods.TimeFormat(remainingTime, true) + " | " + point + " Points | Player";
-        returnSessionTime = currentTime;
-        returnSessionTMP.enabled = true;
     }
 
     public void ActivityResultUI(activityType activityType, string type)
@@ -545,6 +618,12 @@ public class UIManager : MonoBehaviour
             Initial(activityResult, "Activity UI Initial", 0, 0.0f);
             Initial(blackFadeOverlay, "Black Fade Left Overlay Initial", 0, 0.0f);
         }
+    }
+
+    public void ActivityFinishWaitCountdown(float waitDuration)
+    {
+        returnSessionTime = Time.time + waitDuration;
+        msg_returnSession = true;
     }
 
     #endregion

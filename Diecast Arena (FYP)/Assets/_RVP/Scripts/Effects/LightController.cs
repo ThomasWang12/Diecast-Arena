@@ -33,6 +33,7 @@ namespace RVP
         public VehicleLight[] ReverseLights;
 
         // #% My Variables
+        public bool allowControlLights = true;
         public bool padControlLights = false;
         int headlightSwitch = 0;
         bool keyBracketsPressed = false;
@@ -59,139 +60,142 @@ namespace RVP
 
         void Update()
         {
-            #region #% Keyboard inputs to activate blinkers
-
-            // Headlights: H
-            if (Input.GetKeyDown(KeyCode.H))
-                SwitchHeadlights();
-
-            // Left blinkers: [
-            if (Input.GetKeyDown(KeyCode.LeftBracket))
-                ToggleLeftBlinkers();
-
-            // Right blinkers: ]
-            if (Input.GetKeyDown(KeyCode.RightBracket))
-                ToggleRightBlinkers();
-
-            // Hazard lights: [ ]
-            if (Input.GetKey(KeyCode.LeftBracket) && Input.GetKey(KeyCode.RightBracket))
+            if (allowControlLights)
             {
-                if (!keyBracketsPressed)
+                #region #% Keyboard inputs to activate blinkers
+
+                // Headlights: H
+                if (Input.GetKeyDown(KeyCode.H))
+                    SwitchHeadlights();
+
+                // Left blinkers: [
+                if (Input.GetKeyDown(KeyCode.LeftBracket))
+                    ToggleLeftBlinkers();
+
+                // Right blinkers: ]
+                if (Input.GetKeyDown(KeyCode.RightBracket))
+                    ToggleRightBlinkers();
+
+                // Hazard lights: [ ]
+                if (Input.GetKey(KeyCode.LeftBracket) && Input.GetKey(KeyCode.RightBracket))
                 {
-                    keyBracketsPressed = true;
-                    ToggleHazardLights();
-                }
-            }
-            else
-                keyBracketsPressed = false;
-
-            #endregion
-
-            #region #% Gamepad inputs to activate blinkers
-
-            // Toggle vehicle light controls: Gamepad LB
-            if (Input.GetAxisRaw("Gamepad LB") > 0)
-            {
-                padControlLights = true;
-
-                // Headlights (up button = 1)
-                if (Input.GetAxisRaw("Gamepad Up/Down Buttons") > 0)
-                {
-                    if (!padAxis7Pressed)
+                    if (!keyBracketsPressed)
                     {
-                        padAxis7Pressed = true;
-                        SwitchHeadlights();
-                    }
-                }
-                // Hazard lights (down button = -1)
-                else if (Input.GetAxisRaw("Gamepad Up/Down Buttons") < 0)
-                {
-                    if (!padAxis7Pressed)
-                    {
-                        padAxis7Pressed = true;
+                        keyBracketsPressed = true;
                         ToggleHazardLights();
                     }
                 }
                 else
-                    padAxis7Pressed = false;
+                    keyBracketsPressed = false;
 
-                // Left blinkers (left button = -1)
-                if (Input.GetAxisRaw("Gamepad Left/Right Buttons") < 0)
+                #endregion
+
+                #region #% Gamepad inputs to activate blinkers
+
+                // Toggle vehicle light controls: Gamepad LB
+                if (Input.GetAxisRaw("Gamepad LB") > 0)
                 {
-                    if (!padAxis6Pressed)
+                    padControlLights = true;
+
+                    // Headlights (up button = 1)
+                    if (Input.GetAxisRaw("Gamepad Up/Down Buttons") > 0)
                     {
-                        padAxis6Pressed = true;
-                        ToggleLeftBlinkers();
+                        if (!padAxis7Pressed)
+                        {
+                            padAxis7Pressed = true;
+                            SwitchHeadlights();
+                        }
                     }
-                }
-                // Right blinkers (right button = 1)
-                else if (Input.GetAxisRaw("Gamepad Left/Right Buttons") > 0)
-                {
-                    if (!padAxis6Pressed)
+                    // Hazard lights (down button = -1)
+                    else if (Input.GetAxisRaw("Gamepad Up/Down Buttons") < 0)
                     {
-                        padAxis6Pressed = true;
-                        ToggleRightBlinkers();
+                        if (!padAxis7Pressed)
+                        {
+                            padAxis7Pressed = true;
+                            ToggleHazardLights();
+                        }
                     }
+                    else
+                        padAxis7Pressed = false;
+
+                    // Left blinkers (left button = -1)
+                    if (Input.GetAxisRaw("Gamepad Left/Right Buttons") < 0)
+                    {
+                        if (!padAxis6Pressed)
+                        {
+                            padAxis6Pressed = true;
+                            ToggleLeftBlinkers();
+                        }
+                    }
+                    // Right blinkers (right button = 1)
+                    else if (Input.GetAxisRaw("Gamepad Left/Right Buttons") > 0)
+                    {
+                        if (!padAxis6Pressed)
+                        {
+                            padAxis6Pressed = true;
+                            ToggleRightBlinkers();
+                        }
+                    }
+                    else
+                        padAxis6Pressed = false;
                 }
                 else
-                    padAxis6Pressed = false;
-            }
-            else
-                padControlLights = false;
+                    padControlLights = false;
 
-            #endregion
+                #endregion
 
-            #region #% Logic chunks for blinkers
+                #region #% Logic chunks for blinkers
 
-            void SwitchHeadlights()
-            {
-                if (headlightSwitch == 2) headlightSwitch = 0;
-                else headlightSwitch++;
-
-                switch (headlightSwitch)
+                void SwitchHeadlights()
                 {
-                    case 0:
-                        headlightsOn = false;
-                        highBeams = false;
-                        break;
-                    case 1:
-                        headlightsOn = true;
-                        highBeams = false;
-                        break;
-                    case 2:
-                        headlightsOn = true;
-                        highBeams = true;
-                        break;
+                    if (headlightSwitch == 2) headlightSwitch = 0;
+                    else headlightSwitch++;
+
+                    switch (headlightSwitch)
+                    {
+                        case 0:
+                            headlightsOn = false;
+                            highBeams = false;
+                            break;
+                        case 1:
+                            headlightsOn = true;
+                            highBeams = false;
+                            break;
+                        case 2:
+                            headlightsOn = true;
+                            highBeams = true;
+                            break;
+                    }
                 }
-            }
 
-            void ToggleLeftBlinkers()
-            {
-                leftBlinkersOn = !leftBlinkersOn;
-                rightBlinkersOn = false;
-            }
-
-            void ToggleRightBlinkers()
-            {
-                rightBlinkersOn = !rightBlinkersOn;
-                leftBlinkersOn = false;
-            }
-
-            void ToggleHazardLights()
-            {
-                if (leftBlinkersOn && rightBlinkersOn)
+                void ToggleLeftBlinkers()
                 {
-                    leftBlinkersOn = false;
+                    leftBlinkersOn = !leftBlinkersOn;
                     rightBlinkersOn = false;
                 }
-                else
-                {
-                    leftBlinkersOn = true;
-                    rightBlinkersOn = true;
-                }
-            }
 
-            #endregion
+                void ToggleRightBlinkers()
+                {
+                    rightBlinkersOn = !rightBlinkersOn;
+                    leftBlinkersOn = false;
+                }
+
+                void ToggleHazardLights()
+                {
+                    if (leftBlinkersOn && rightBlinkersOn)
+                    {
+                        leftBlinkersOn = false;
+                        rightBlinkersOn = false;
+                    }
+                    else
+                    {
+                        leftBlinkersOn = true;
+                        rightBlinkersOn = true;
+                    }
+                }
+
+                #endregion
+            }
 
             // Activate blinkers
             if (leftBlinkersOn || rightBlinkersOn)

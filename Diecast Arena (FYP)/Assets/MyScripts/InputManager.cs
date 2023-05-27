@@ -24,7 +24,9 @@ public class InputManager : MonoBehaviour
     bool padAxis6Pressed = false; // Gamepad Left/Right Buttons (left = -1, right = 1)
     bool padAxis7Pressed = false; // Gamepad Up/Down Buttons (up = 1, down = -1)
 
+    bool toggleExitActivity = false;
     [HideInInspector] public bool allowExitActivity = false;
+    [HideInInspector] public bool ignoreEbrake = false;
 
     /* Tunables */
     float deadzone = 0.19f;
@@ -43,16 +45,24 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
+        // Check Input Type
         currentInputType = CheckInputType();
         OnInputTypeChange(currentInputType);
 
+        // Exit Activity
+        UI.msg_exitActivity = toggleExitActivity;
         allowExitActivity = master.currentState.ToString().Contains("Activity") && !master.currentState.ToString().Contains("_");
         if (allowExitActivity)
         {
             if (Input.GetKeyDown(KeyCode.Escape) || Input.GetButtonDown("Gamepad Select"))
+                toggleExitActivity = !toggleExitActivity;
+
+            if (toggleExitActivity && (Input.GetKeyDown(KeyCode.Return) || Input.GetButtonDown("Gamepad Fire3")))
                 master.ExitActivity(master.activeActivityIndex);
         }
+        else toggleExitActivity = false;
 
+        // Quit Game
         if (master.currentState == gameState.Menu || master.currentState == gameState.Session)
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -171,7 +181,7 @@ public class InputManager : MonoBehaviour
         return false;
     }
 
-    public bool ToggleHUD()
+    public bool ToggleUI()
     {
         if (!allowInput) return false;
 
@@ -187,7 +197,24 @@ public class InputManager : MonoBehaviour
         return false;
     }
 
+    public bool ToggleControls()
+    {
+        if (!allowInput) return false;
+
+        if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl)
+            || Input.GetButtonDown("Gamepad Start")) return true;
+        return false;
+    }
+
     public bool EnterActivity()
+    {
+        if (!allowInput) return false;
+
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("Gamepad Fire3")) return true;
+        return false;
+    }
+
+    public bool ExitActivity()
     {
         if (!allowInput) return false;
 

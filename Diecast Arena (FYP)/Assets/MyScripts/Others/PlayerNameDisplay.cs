@@ -3,21 +3,17 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.Timeline;
 
-public class PlayerNameDisplay : MonoBehaviour
+public class PlayerNameDisplay : NetworkBehaviour
 {
-    GameMaster master;
-    PlayerNetwork network;
     Transform playername;
-    [HideInInspector] public TMP_Text playernameTMP;
+    TMP_Text playernameTMP;
     int id;
+    bool localPlay = true;
 
-    void Awake()
+    public override void OnNetworkSpawn()
     {
-        master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
-        network = master.network;
+        localPlay = false;
     }
 
     void Start()
@@ -26,7 +22,7 @@ public class PlayerNameDisplay : MonoBehaviour
         playernameTMP = playername.GetComponent<TextMeshProUGUI>();
         id = (int) transform.parent.GetComponent<NetworkObject>().OwnerClientId;
 
-        if (network.localPlay || transform.parent.GetComponent<NetworkObject>().IsOwner)
+        if (localPlay || transform.parent.GetComponent<NetworkObject>().IsOwner)
             gameObject.SetActive(false);
 
         playernameTMP.text = "Player " + id;
