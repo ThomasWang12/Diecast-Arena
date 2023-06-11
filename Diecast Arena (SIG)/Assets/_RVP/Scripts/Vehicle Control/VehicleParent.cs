@@ -2,7 +2,6 @@
 using System.Collections;
 using UnityEngine.Timeline;
 using System.Collections.Generic;
-using Unity.Netcode;
 
 namespace RVP
 {
@@ -11,7 +10,7 @@ namespace RVP
     [AddComponentMenu("RVP/Vehicle Controllers/Vehicle Parent", 0)]
 
     // Vehicle root class
-    public class VehicleParent : NetworkBehaviour // #% Mono -> Network
+    public class VehicleParent : MonoBehaviour
     {
         [System.NonSerialized]
         public Rigidbody rb;
@@ -133,11 +132,13 @@ namespace RVP
         public float cameraHeightChange;
 
         // #% My Variables
-       public bool localPlay = true;
+        GameMaster master;
+        PlayerNetwork network;
 
-        public override void OnNetworkSpawn()
+        void Awake()
         {
-            localPlay = false;
+            master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+            network = master.network;
         }
 
         void Start()
@@ -146,7 +147,7 @@ namespace RVP
             rb = GetComponent<Rigidbody>();
 
             // %& Local Play / Network
-            if (localPlay)
+            if (network.localPlay)
             {
                 // Create normal orientation object
                 GameObject normTemp = new GameObject(tr.name + "'s Normal Orientation");
@@ -154,7 +155,7 @@ namespace RVP
             }
             else
             {
-                norm = GameObject.Find("Player " + OwnerClientId + " Normal Orientation").transform;
+                norm = GameObject.Find("Player " + network.ownerPlayerId + " Normal Orientation").transform;
             }
 
             SetCenterOfMass();
@@ -184,7 +185,6 @@ namespace RVP
         void Update()
         {
             // Shift single frame pressing logic
-
             if (stopUpshift)
             {
                 upshiftPressed = false;

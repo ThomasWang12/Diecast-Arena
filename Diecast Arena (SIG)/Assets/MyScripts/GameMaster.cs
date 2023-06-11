@@ -2,6 +2,9 @@ using RVP;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.Services.Relay.Models;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Timeline;
 using UnityEngine.UI;
@@ -13,7 +16,6 @@ public class GameMaster : MonoBehaviour
     [HideInInspector] public VehicleManager vehicle;
     [HideInInspector] public SoundManager sound;
     [HideInInspector] public UIManager UI;
-    [HideInInspector] public PostProcessing postFX;
     [HideInInspector] public Common common;
 
     [Header("Game State")]
@@ -63,16 +65,11 @@ public class GameMaster : MonoBehaviour
 
     [HideInInspector] public bool ready = false;
     [HideInInspector] public int activeActivityIndex = -1;
-    PlayerCollision playerCollision;
     GearboxTransmission vehicleGearbox;
     TrafficLightControl trafficLightControl;
 
-    bool returnSession = false;
-    float returnSessionTime;
-
     /* Tunables */
-    int camFOV = 60;
-    float activityFinishWaitDuration = 10.0f;
+    [HideInInspector] public float activityFinishWaitDuration = 4.0f;
 
     void Awake()
     {
@@ -81,7 +78,6 @@ public class GameMaster : MonoBehaviour
         vehicle = GameObject.Find("Vehicle Manager").GetComponent<VehicleManager>();
         sound = GameObject.Find("Sound Manager").GetComponent<SoundManager>();
         UI = GameObject.Find("UI Manager").GetComponent<UIManager>();
-        postFX = GameObject.Find("Global Volume").GetComponent<PostProcessing>();
         common = transform.Find("Common").gameObject.GetComponent<Common>();
 
         // Get the trigger object for each activity
@@ -106,24 +102,25 @@ public class GameMaster : MonoBehaviour
 
     public void GetReady()
     {
+        Methods.DefaultPlayerNames();
+
         // %& Local Play / Network
         if (network.localPlay)
             player = GameObject.FindWithTag("Player");
         else player = Methods.FindOwnedPlayer();
-
-        playerCollision = player.GetComponent<PlayerCollision>();
-        playerCollision.GetRimColliders();
         vehicleGearbox = player.transform.Find("chassis").transform.Find("transmission").GetComponent<GearboxTransmission>();
+
+        vehicle.playerColor = player.transform.Find("network").GetComponent<PlayerColor>();
+        vehicle.ApplyPlayerColor(network.playerColorIndex.Value);
         cam = Camera.main;
-        cam.fieldOfView = camFOV;
-        UpdateGameState(gameState.Session);
-
-        if (player != null) ready = true;
-
-        Methods.DefaultPlayerNames();
-        vehicle.Initialize();
-        network.EnterSession();
+        cam.fieldOfView = 60;
         UI.EnterSession();
+
+        if (player != null)
+        {
+            ready = true;
+            UpdateGameState(gameState.Session);
+        }
     }
 
     public void InitializeSession()
@@ -157,12 +154,6 @@ public class GameMaster : MonoBehaviour
         playerPos = player.transform.position;
         playerSpeed = Int32.Parse(UI.speed.text);
         camPos = cam.transform.position;
-
-        if (returnSession)
-        {
-            if (input.ExitActivity() || Time.time >= returnSessionTime)
-                ReturnToSession(activeActivityIndex);
-        }
     }
 
     void AvailableActivities()
@@ -207,7 +198,6 @@ public class GameMaster : MonoBehaviour
             vehicleGearbox.ShiftToGear(2);
             cam.GetComponent<CameraControl>().ToggleSmooth(false);
             UI.HideActivityInfo();
-            UI.Toggles(false);
 
             if (type == activityType.RaceDestination || type == activityType.RaceCircuit)
             {
@@ -265,42 +255,66 @@ public class GameMaster : MonoBehaviour
 
     public void FinishActivity(int i)
     {
-        activityType type = activityList[i].type;
+        StartCoroutine(ActivityFinishSequence(i, activityList[i].type));
 
-        if (Enum.TryParse("Activity" + i + "_Finished", out gameState state))
-            UpdateGameState(state);
-        else UpdateGameState(gameState.Activity_Finished);
+        IEnumerator ActivityFinishSequence(int index, activityType type)
+        {
+            #region Activity Finish
 
-        UI.ActivityUI(type, "Initial");
-        UI.ActivityResultUI(type, "Show");
-        UI.ActivityFinishWaitCountdown(activityFinishWaitDuration);
+            if (Enum.TryParse("Activity" + index + "_Finished", out gameState state))
+                UpdateGameState(state);
+            else UpdateGameState(gameState.Activity_Finished);
 
-        returnSession = true;
-        returnSessionTime = Time.time + activityFinishWaitDuration;
+            UI.ActivityUI(type, "Initial");
+            UI.ActivityResultUI(type, "Show");
+            yield return new WaitForSeconds(activityFinishWaitDuration);
+
+            #endregion
+
+            #region Return To Session
+
+            UI.returnSessionTMP.enabled = false;
+            UI.FadeBlack("Out");
+            yield return new WaitForSeconds(UI.clips[UI.AnimNameToIndex("Black Fade")].length);
+
+            if (type == activityType.RaceDestination || type == activityType.RaceCircuit)
+                activityList[index].mainObject.GetComponent<RaceActivity>().Reset();
+
+            if (type == activityType.CollectionBattle)
+                activityList[index].mainObject.GetComponent<CollectActivity>().Reset();
+
+            if (type == activityType.CarHunt)
+                activityList[index].mainObject.GetComponent<HuntActivity>().Reset();
+
+            UI.ActivityResultUI(type, "Initial");
+            UpdateGameState(gameState.Session);
+            activeActivityIndex = -1;
+            network.activeActivityIndex = -1;
+            UI.FadeBlack("In");
+
+            #endregion
+        }
     }
 
     public void ExitActivity(int i)
     {
-        if (Enum.TryParse("Activity" + activityList[i].type + "_Exit", out gameState state))
-            UpdateGameState(state);
-        else UpdateGameState(gameState.Activity_Exit);
+        StartCoroutine(ActivityFinishSequence(i, activityList[i].type));
 
-        UI.FadeBlack("Out");
-        ReturnToSession(i);
-    }
-
-    void ReturnToSession(int index)
-    {
-        StartCoroutine(ReturnToSession(index));
-        returnSession = false;
-        returnSessionTime = 0;
-
-        IEnumerator ReturnToSession(int index)
+        IEnumerator ActivityFinishSequence(int index, activityType type)
         {
+            #region Activity Exit
+
+            if (Enum.TryParse("Activity" + index + "_Exit", out gameState state))
+                UpdateGameState(state);
+            else UpdateGameState(gameState.Activity_Exit);
+
+            #endregion
+
+            #region Return To Session
+
+            UI.returnSessionTMP.enabled = false;
             UI.FadeBlack("Out");
             yield return new WaitForSeconds(UI.clips[UI.AnimNameToIndex("Black Fade")].length);
-
-            activityType type = activityList[index].type;
 
             if (type == activityType.RaceDestination || type == activityType.RaceCircuit)
                 activityList[index].mainObject.GetComponent<RaceActivity>().Reset();
@@ -317,11 +331,17 @@ public class GameMaster : MonoBehaviour
 
             UI.ActivityUI(type, "Initial");
             UI.ActivityResultUI(type, "Initial");
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/GameMaster.cs
             UI.Toggles(false);
             input.ResetToggles();
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/GameMaster.cs
             UpdateGameState(gameState.Session);
             activeActivityIndex = -1;
+            network.activeActivityIndex = -1;
             UI.FadeBlack("In");
+
+            #endregion
         }
     }
 

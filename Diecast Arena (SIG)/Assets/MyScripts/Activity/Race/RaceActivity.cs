@@ -50,7 +50,14 @@ public class RaceActivity : MonoBehaviour
     {
         activityIndex = master.ActivityObjectToIndex(gameObject);
         activityType = master.activityList[activityIndex].type;
-        if (activityType == activityType.RaceDestination) totalLap = 0;
+        if (activityType == activityType.RaceDestination)
+        {
+            totalLap = 0;
+
+            // Get the start position and rotation (Race Destination)
+            startPos = Methods.GetStartPosition(transform.Find("[Start Position]").gameObject, network.ownerPlayerId).transform.position;
+            startRot = Methods.GetStartPosition(transform.Find("[Start Position]").gameObject, network.ownerPlayerId).transform.rotation;
+        }
         InitializeCheckpoints();
         totalCheckpoint = checkpoints.Count;
     }
@@ -107,6 +114,10 @@ public class RaceActivity : MonoBehaviour
                 if (i == checkpoints.Count - 1)
                 {
                     checkpointCols[i].InitializeFlag(); // Spawn flag
+
+                    // Get the start position and rotation (Race Circuit)
+                    startPos = Methods.GetStartPosition(checkpoints[i], network.ownerPlayerId).transform.position;
+                    startRot = Methods.GetStartPosition(checkpoints[i], network.ownerPlayerId).transform.rotation;
                 }
             }
         }
@@ -116,19 +127,6 @@ public class RaceActivity : MonoBehaviour
     {
         if (!initialized) InitializeCheckpoints();
         InitializeCheckpointObjects(activityType);
-
-        if (activityType == activityType.RaceDestination)
-        {
-            startPos = Methods.GetStartPosition(transform.Find("[Start Position]").gameObject, network.ownerPlayerId).transform.position;
-            startRot = Methods.GetStartPosition(transform.Find("[Start Position]").gameObject, network.ownerPlayerId).transform.rotation;
-        }
-
-        if (activityType == activityType.RaceCircuit)
-        {
-            startPos = Methods.GetStartPosition(checkpoints[checkpoints.Count - 1], network.ownerPlayerId).transform.position;
-            startRot = Methods.GetStartPosition(checkpoints[checkpoints.Count - 1], network.ownerPlayerId).transform.rotation;
-        }
-
         master.TeleportPlayer(startPos + Common.spawnHeightOffset, startRot);
         UI.InfoRaceUI(totalLap, checkpoints.Count);
     }
@@ -180,7 +178,7 @@ public class RaceActivity : MonoBehaviour
                 // Race finished
                 finished = true;
                 master.FinishActivity(activityIndex);
-                UI.ResultRaceUI(activityIndex, Time.time - startTime);
+                UI.ResultRaceUI(activityIndex, Time.time - startTime, Time.time);
                 sound.Play(Sound.name.CheckpointBold);
             }
         }

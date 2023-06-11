@@ -15,6 +15,7 @@ namespace RVP
     public class BasicInput : NetworkBehaviour // #% Mono -> Network
     {
         GameMaster master;
+        PlayerNetwork network;
         InputManager input;
 
         VehicleParent vp;
@@ -29,19 +30,12 @@ namespace RVP
         public string yawAxis;
         public string rollAxis;
 
-        // #% My Variables
-        bool localPlay = true;
-
-        public override void OnNetworkSpawn()
-        {
-            localPlay = false;
-        }
-
         void Start()
         {
-            if (localPlay || SceneManager.GetActiveScene().name == Common.mainSceneName)
+            if (SceneManager.GetActiveScene().name == Common.mainSceneName)
             {
                 master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+                network = master.network;
                 input = master.input;
             }
 
@@ -50,7 +44,7 @@ namespace RVP
 
         void Update()
         {
-            if (!localPlay)
+            if (!network.localPlay)
             {
                 if (!IsOwner) return;
             }
@@ -74,7 +68,7 @@ namespace RVP
 
         void FixedUpdate()
         {
-            if (!localPlay)
+            if (!network.localPlay)
             {
                 if (!IsOwner) return;
             }

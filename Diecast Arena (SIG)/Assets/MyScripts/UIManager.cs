@@ -1,7 +1,12 @@
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
+=======
+using DG.Tweening.Plugins.Options;
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static GameMaster;
@@ -12,19 +17,21 @@ public class UIManager : MonoBehaviour
     GameMaster master;
     PlayerNetwork network;
     InputManager input;
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
     SoundManager sound;
     PostProcessing postFX;
     VehicleManager vehicle;
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
     ActivityOption activityOption;
 
     [SerializeField] GameObject canvas;
     [SerializeField] CanvasGroup screen;
-    [SerializeField] CanvasGroup HUD;
     [SerializeField] CanvasGroup gameUI;
     [SerializeField] CanvasGroup options;
-    [SerializeField] CanvasGroup controls;
 
     [Header("Screen")]
+    public bool toogleHUD = true;
     [SerializeField] GameObject blackScreen;
     [SerializeField] GameObject whiteScreen;
     [SerializeField] GameObject blackFadeOverlay;
@@ -37,19 +44,15 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text gameSateTMP;
     [SerializeField] TMP_Text toggleOptionsTMP;
     [SerializeField] TMP_Text exitHintTMP;
-    [SerializeField] public TMP_Text gameMessageTMP;
 
     [Header("Options")]
     [SerializeField] RawImage protoTaxi;
     [SerializeField] Texture[] protoTaxiColors;
-    [SerializeField] GameObject changePlayerName;
-    [SerializeField] GameObject changeTaxiColor;
     [SerializeField] GameObject colorOptionsPanel;
     [SerializeField] GameObject[] colors;
     TMP_Text[] colorSelectTMP;
 
     [Header("Activity Trigger")]
-    [SerializeField] CanvasGroup activityTrigger;
     [SerializeField] GameObject activityTriggerTypeIcon;
     [SerializeField] GameObject activityTriggerTypeText;
     [SerializeField] GameObject activityName;
@@ -76,6 +79,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text activityNameTMP;
     [SerializeField] TMP_Text finishRankTMP;
     [SerializeField] TMP_Text playerResultTMP;
+    [SerializeField] public TMP_Text returnSessionTMP;
 
     [Header("Icons")]
     [SerializeField] Texture activityIconRace;
@@ -91,11 +95,7 @@ public class UIManager : MonoBehaviour
     string prompt_startActivity;
     string prompt_adjustActivity;
     string prompt_toggleOptions;
-    string prompt_toggleControls;
     string prompt_exitHint;
-    string prompt_exitHintToggle;
-    string prompt_exitActivity;
-    string prompt_returnSession;
     TMP_Text activityPressStartTMP;
     TMP_Text activityPressAdjustTMP;
 
@@ -109,26 +109,25 @@ public class UIManager : MonoBehaviour
     /* Hunt UI  */
     int hunt_initialPoint;
 
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
     bool toggleUI = true;
     [HideInInspector] public bool isToggled = false;
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
     bool toggleOptions = true;
-    bool toggleControls = false;
-    [HideInInspector] public bool msg_quitGame = false;
-    [HideInInspector] public bool msg_exitActivity = false;
-    bool msg_returnSession = false;
     float returnSessionTime;
-
-    /* Tunables */
-    float activityTriggerFade = 0.1f;
 
     void Awake()
     {
         master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
         network = master.network;
         input = master.input;
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
         sound = master.sound;
         postFX = master.postFX;
         vehicle = master.vehicle;
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
         activityOption = GameObject.Find("[Activity Triggers]").GetComponent<ActivityOption>();
 
         // Get the select text for each color option
@@ -154,9 +153,7 @@ public class UIManager : MonoBehaviour
     {
         AnimationsInitial();
         ChangeButtonType(inputType.MouseKeyboard);
-        CanvasGroupToggle(HUD, false);
         CanvasGroupToggle(options, toggleOptions);
-        CanvasGroupToggle(controls, toggleControls);
         huntSpeedLimitTMP.enabled = false;
     }
 
@@ -187,24 +184,19 @@ public class UIManager : MonoBehaviour
 
     void Update()
     {
-        // Toggle UI
-        if (input.ToggleUI())
-        {
-            toggleUI = !toggleUI;
-            ToggleUI(toggleUI);
-        }
-
+        if (input.ToggleHUD()) ToggleHUD();
         InitializePromptText();
         UpdatePromptText();
 
         if (master.ready)
         {
-            if (input.ToggleOptions() && !toggleControls)
+            if (input.ToggleOptions())
             {
                 toggleOptions = !toggleOptions;
                 ToggleOptions(toggleOptions);
                 if (toggleOptions) sound.Play(Sound.name.Select);
             }
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
 
             if (input.ToggleControls() && !toggleOptions)
             {
@@ -219,12 +211,19 @@ public class UIManager : MonoBehaviour
 
         isToggled = toggleOptions || toggleControls;
         activityTrigger.alpha = (isToggled) ? activityTriggerFade : 1;
+=======
+        }
+        else
+        {
+            blackOverlay.SetActive(true);
+        }
+
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
         exitHintTMP.enabled = input.allowExitActivity;
 
-        // Game Message
-        gameMessageTMP.enabled = msg_quitGame || msg_exitActivity || msg_returnSession;
-        if (msg_quitGame)
+        if (returnSessionTMP.isActiveAndEnabled)
         {
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
             gameMessageTMP.text = "Quit to Desktop?" + "\n" + "No (Esc) / Yes (Enter)";
         }
         if (msg_exitActivity)
@@ -240,27 +239,26 @@ public class UIManager : MonoBehaviour
                 gameMessageTMP.text = "Press " + prompt_returnSession + " to return to session (0:0" + remaining + ")";
             }
             else msg_returnSession = false;
+=======
+            int remaining = Mathf.FloorToInt(returnSessionTime + master.activityFinishWaitDuration - Time.time);
+            returnSessionTMP.text = "Return to session (0:0" + remaining + ")";
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
         }
 
         blackOverlay.SetActive(msg_quitGame || msg_exitActivity);
         postFX.ToggleDOV(toggleOptions || toggleControls || msg_quitGame || msg_exitActivity);
     }
 
-    public void ToggleUI(bool state)
+    void ToggleHUD()
     {
-        CanvasGroupToggle(canvas.GetComponent<CanvasGroup>(), state);
-    }
-
-    public void Toggles(bool state)
-    {
-        ToggleOptions(state);
-        ToggleControls(state);
+        toogleHUD = !toogleHUD;
+        CanvasGroupToggle(canvas.GetComponent<CanvasGroup>(), toogleHUD);
     }
 
     void ToggleOptions(bool state)
     {
-        toggleOptions = state;
         CanvasGroupToggle(options, state);
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
         postFX.ToggleDOV(state);
     }
 
@@ -269,6 +267,9 @@ public class UIManager : MonoBehaviour
         toggleControls = state;
         CanvasGroupToggle(controls, state);
         postFX.ToggleDOV(state);
+=======
+        blackOverlay.SetActive(state);
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
     }
 
     public void DisplayGameSate(string state)
@@ -278,12 +279,7 @@ public class UIManager : MonoBehaviour
 
     public void EnterSession()
     {
-        CanvasGroupToggle(HUD, true);
         ToggleOptions(false);
-        protoTaxi.enabled = false;
-        changePlayerName.GetComponent<RectTransform>().localPosition = new Vector2(-650, 150);
-        changeTaxiColor.GetComponent<RectTransform>().localPosition = new Vector2(-650, 0);
-        colorOptionsPanel.GetComponent<RectTransform>().localPosition = new Vector2(-650, -60);
     }
 
     #region Button Prompts
@@ -295,11 +291,13 @@ public class UIManager : MonoBehaviour
             prompt_startActivity = "E";
             prompt_adjustActivity = "+/-";
             prompt_toggleOptions = "Tab";
-            prompt_toggleControls = "Ctrl";
             prompt_exitHint = "Esc";
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
             prompt_exitHintToggle = "(Esc)";
             prompt_exitActivity = "(Enter)";
             prompt_returnSession = "E";
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
         }
 
         if (type == inputType.Gamepad)
@@ -307,11 +305,7 @@ public class UIManager : MonoBehaviour
             prompt_startActivity = ControllerFont('x');
             prompt_adjustActivity = ControllerFont('V');
             prompt_toggleOptions = ControllerFont('W');
-            prompt_toggleControls = ControllerFont('m');
             prompt_exitHint = ControllerFont('v');
-            prompt_exitHintToggle = ControllerFont('v');
-            prompt_exitActivity = ControllerFont('x');
-            prompt_returnSession = ControllerFont('x');
         }
     }
 
@@ -337,7 +331,7 @@ public class UIManager : MonoBehaviour
             promptsInitialized = true;
         }
 
-        // Button Prompt Texts that are animated should be listed here to be initialized
+        // Button Prompt Texts that use controller font should be listed here to be initialized
         void PromptsInitial(string type)
         {
             if (type == "Show")
@@ -357,7 +351,7 @@ public class UIManager : MonoBehaviour
     {
         activityPressStartTMP.text = "Press " + prompt_startActivity + " to start";
         activityPressAdjustTMP.text = "Press " + prompt_adjustActivity + " to adjust";
-        toggleOptionsTMP.text = prompt_toggleOptions + " - Options" + "     " + prompt_toggleControls + " - Controls";
+        toggleOptionsTMP.text = prompt_toggleOptions + " - Options";
         exitHintTMP.text = prompt_exitHint + " - Exit Activity";
     }
 
@@ -411,15 +405,14 @@ public class UIManager : MonoBehaviour
     public void OnColorOptionHover(GameObject colorOption)
     {
         int i = Array.IndexOf(colors, colorOption);
-        if (i == vehicle.playerColorIndex) return;
+        if (i == network.playerColorIndex.Value) return;
         Show(colors[i], "Color Option In", 0, 0.0f);
-        sound.Play(Sound.name.Select);
     }
 
     public void OnColorOptionExit(GameObject colorOption)
     {
         int i = Array.IndexOf(colors, colorOption);
-        if (i == vehicle.playerColorIndex) return;
+        if (i == network.playerColorIndex.Value) return;
         Hide(colors[i], "Color Option Out", 0, 0.0f);
     }
 
@@ -591,28 +584,34 @@ public class UIManager : MonoBehaviour
     #region Result (Activity) UI
     // Variables that are recorded upon completion of the activity.
 
-    public void ResultRaceUI(int index, float raceTime)
+    public void ResultRaceUI(int index, float raceTime, float currentTime)
     {
         activityFinishTypeIcon.texture = ActivityTypeIcon(master.activityList[index].type);
         activityNameTMP.text = master.activityList[index].name;
         finishRankTMP.text = "FINISH";
         playerResultTMP.text = Methods.TimeFormat(raceTime, true) + " | Player";
+        returnSessionTime = currentTime;
+        returnSessionTMP.enabled = true;
     }
 
-    public void ResultCollectUI(int index, int score, bool cleared)
+    public void ResultCollectUI(int index, int score, bool cleared, float currentTime)
     {
         activityFinishTypeIcon.texture = ActivityTypeIcon(master.activityList[index].type);
         activityNameTMP.text = master.activityList[index].name;
         finishRankTMP.text = (cleared) ? "CLEAR!" : "FINISH";
         playerResultTMP.text = score + " | Player";
+        returnSessionTime = currentTime;
+        returnSessionTMP.enabled = true;
     }
 
-    public void ResultHuntUI(int index, int point, bool win, float remainingTime)
+    public void ResultHuntUI(int index, int point, bool win, float remainingTime, float currentTime)
     {
         activityFinishTypeIcon.texture = ActivityTypeIcon(master.activityList[index].type);
         activityNameTMP.text = master.activityList[index].name;
         finishRankTMP.text = (win) ? "WIN" : "BUSTED!"; // for hunter: WIN / LOSE
         playerResultTMP.text = Methods.TimeFormat(remainingTime, true) + " | " + point + " Points | Player";
+        returnSessionTime = currentTime;
+        returnSessionTMP.enabled = true;
     }
 
     public void ActivityResultUI(activityType activityType, string type)
@@ -632,12 +631,6 @@ public class UIManager : MonoBehaviour
             Initial(activityResult, "Activity UI Initial", 0, 0.0f);
             Initial(blackFadeOverlay, "Black Fade Left Overlay Initial", 0, 0.0f);
         }
-    }
-
-    public void ActivityFinishWaitCountdown(float waitDuration)
-    {
-        returnSessionTime = Time.time + waitDuration;
-        msg_returnSession = true;
     }
 
     #endregion
