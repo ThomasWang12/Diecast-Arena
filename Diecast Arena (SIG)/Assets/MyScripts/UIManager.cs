@@ -1,4 +1,8 @@
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
+=======
+using DG.Tweening.Plugins.Options;
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
 =======
 using DG.Tweening.Plugins.Options;
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
@@ -18,9 +22,12 @@ public class UIManager : MonoBehaviour
     PlayerNetwork network;
     InputManager input;
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
     SoundManager sound;
     PostProcessing postFX;
     VehicleManager vehicle;
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
 =======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
     ActivityOption activityOption;
@@ -110,8 +117,11 @@ public class UIManager : MonoBehaviour
     int hunt_initialPoint;
 
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
     bool toggleUI = true;
     [HideInInspector] public bool isToggled = false;
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
 =======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
     bool toggleOptions = true;
@@ -123,9 +133,12 @@ public class UIManager : MonoBehaviour
         network = master.network;
         input = master.input;
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
         sound = master.sound;
         postFX = master.postFX;
         vehicle = master.vehicle;
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
 =======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
         activityOption = GameObject.Find("[Activity Triggers]").GetComponent<ActivityOption>();
@@ -197,6 +210,7 @@ public class UIManager : MonoBehaviour
                 if (toggleOptions) sound.Play(Sound.name.Select);
             }
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
 
             if (input.ToggleControls() && !toggleOptions)
             {
@@ -219,10 +233,19 @@ public class UIManager : MonoBehaviour
         }
 
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
+=======
+        }
+        else
+        {
+            blackOverlay.SetActive(true);
+        }
+
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
         exitHintTMP.enabled = input.allowExitActivity;
 
         if (returnSessionTMP.isActiveAndEnabled)
         {
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
             gameMessageTMP.text = "Quit to Desktop?" + "\n" + "No (Esc) / Yes (Enter)";
         }
@@ -243,6 +266,10 @@ public class UIManager : MonoBehaviour
             int remaining = Mathf.FloorToInt(returnSessionTime + master.activityFinishWaitDuration - Time.time);
             returnSessionTMP.text = "Return to session (0:0" + remaining + ")";
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
+=======
+            int remaining = Mathf.FloorToInt(returnSessionTime + master.activityFinishWaitDuration - Time.time);
+            returnSessionTMP.text = "Return to session (0:0" + remaining + ")";
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
         }
 
         blackOverlay.SetActive(msg_quitGame || msg_exitActivity);
@@ -259,6 +286,7 @@ public class UIManager : MonoBehaviour
     {
         CanvasGroupToggle(options, state);
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
         postFX.ToggleDOV(state);
     }
 
@@ -267,6 +295,9 @@ public class UIManager : MonoBehaviour
         toggleControls = state;
         CanvasGroupToggle(controls, state);
         postFX.ToggleDOV(state);
+=======
+        blackOverlay.SetActive(state);
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
 =======
         blackOverlay.SetActive(state);
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
@@ -293,9 +324,12 @@ public class UIManager : MonoBehaviour
             prompt_toggleOptions = "Tab";
             prompt_exitHint = "Esc";
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/UIManager.cs
             prompt_exitHintToggle = "(Esc)";
             prompt_exitActivity = "(Enter)";
             prompt_returnSession = "E";
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
 =======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/UIManager.cs
         }

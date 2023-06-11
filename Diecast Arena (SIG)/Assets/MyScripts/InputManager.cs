@@ -25,8 +25,11 @@ public class InputManager : MonoBehaviour
     bool padAxis7Pressed = false; // Gamepad Up/Down Buttons (up = 1, down = -1)
 
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
     bool toggleQuitGame = false;
     bool toggleExitActivity = false;
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
 =======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
     [HideInInspector] public bool allowExitActivity = false;
@@ -53,8 +56,11 @@ public class InputManager : MonoBehaviour
         OnInputTypeChange(currentInputType);
 
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
         // Quit Game
 =======
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
         allowExitActivity = master.currentState.ToString().Contains("Activity") && !master.currentState.ToString().Contains("_");
         if (allowExitActivity)
         {
@@ -62,6 +68,9 @@ public class InputManager : MonoBehaviour
                 master.ExitActivity(master.activeActivityIndex);
         }
 
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
+=======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
         if (master.currentState == gameState.Menu || master.currentState == gameState.Session)
         {

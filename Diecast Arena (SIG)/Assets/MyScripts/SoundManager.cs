@@ -7,10 +7,14 @@ public static class Sound
     public enum name
     {
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/SoundManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/SoundManager.cs
         Select, PaintSpray, ButtonUp, ButtonDown,
         Countdown321, Countdown5,
         Checkpoint, CheckpointBold, CameraShutter,
         GameLose
+=======
+        Countdown321, Countdown5, Checkpoint, CheckpointBold, CameraShutter, GameLose
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/SoundManager.cs
 =======
         Countdown321, Countdown5, Checkpoint, CheckpointBold, CameraShutter, GameLose
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/SoundManager.cs
@@ -21,10 +25,13 @@ public static class Sound
         return name switch
         {
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/SoundManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/SoundManager.cs
             name.Select => "Select",
             name.PaintSpray => "Paint Spray",
             name.ButtonUp => "Button Up",
             name.ButtonDown => "Button Down",
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/SoundManager.cs
 =======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/SoundManager.cs
             name.Countdown321 => "Countdown 321",
