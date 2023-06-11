@@ -114,7 +114,7 @@ public class GameMaster : MonoBehaviour
         playerCollision = player.GetComponent<PlayerCollision>();
         playerCollision.GetRimColliders();
         vehicleGearbox = player.transform.Find("chassis").transform.Find("transmission").GetComponent<GearboxTransmission>();
-        if (cam == null) cam = Camera.main; // #% Temp
+        cam = Camera.main;
         cam.fieldOfView = camFOV;
         UpdateGameState(gameState.Session);
 
@@ -323,6 +323,17 @@ public class GameMaster : MonoBehaviour
             activeActivityIndex = -1;
             UI.FadeBlack("In");
         }
+    }
+
+    public void ToggleActivity(int index, bool state)
+    {
+        activityList[index].available = state;
+    }
+
+    public void ToggleAllActivities(bool state)
+    {
+        for (int i = 0; i < activityList.Length; i++)
+            activityList[i].available = state;
     }
 
     public void TeleportPlayer(Vector3 position, Quaternion rotation)
