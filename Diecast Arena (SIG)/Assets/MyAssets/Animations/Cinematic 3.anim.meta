@@ -1,6 +1,10 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 <<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyAssets/Animations/Cinematic 3.anim.meta
 guid: b9a1343d813409c47ac7f552a0fb1cf7
+=======
+guid: 0134e2520e6b0c44fa14e1fd4ae1e67e
+>>>>>>> parent of 421dcd5 (Diecast Arena (SIG) 1.2 (Cinematics))
 NativeFormatImporter:
 ========
 guid: c37670e1f5a8d7345929fdb208fd2ad5

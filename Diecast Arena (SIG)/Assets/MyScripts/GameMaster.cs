@@ -109,11 +109,23 @@ public class GameMaster : MonoBehaviour
             player = GameObject.FindWithTag("Player");
         else player = Methods.FindOwnedPlayer();
         vehicleGearbox = player.transform.Find("chassis").transform.Find("transmission").GetComponent<GearboxTransmission>();
+<<<<<<< HEAD
 
         vehicle.playerColor = player.transform.Find("network").GetComponent<PlayerColor>();
         vehicle.ApplyPlayerColor(network.playerColorIndex.Value);
         cam = Camera.main;
         cam.fieldOfView = 60;
+=======
+        if (cam == null) cam = Camera.main; // #% Temp
+        cam.fieldOfView = camFOV;
+        UpdateGameState(gameState.Session);
+
+        if (player != null) ready = true;
+
+        Methods.DefaultPlayerNames();
+        vehicle.Initialize();
+        network.EnterSession();
+>>>>>>> parent of 421dcd5 (Diecast Arena (SIG) 1.2 (Cinematics))
         UI.EnterSession();
 
         if (player != null)
@@ -349,17 +361,6 @@ public class GameMaster : MonoBehaviour
 
             #endregion
         }
-    }
-
-    public void ToggleActivity(int index, bool state)
-    {
-        activityList[index].available = state;
-    }
-
-    public void ToggleAllActivities(bool state)
-    {
-        for (int i = 0; i < activityList.Length; i++)
-            activityList[i].available = state;
     }
 
     public void TeleportPlayer(Vector3 position, Quaternion rotation)

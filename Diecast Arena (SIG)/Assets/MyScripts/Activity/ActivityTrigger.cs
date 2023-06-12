@@ -45,17 +45,9 @@ public class ActivityTrigger : MonoBehaviour
 
     void Update()
     {
-        Vector3 rotateY;
-        if (master.cam == Camera.main)
-        {
-            // Canvas keeps facing towards the camera (rotate y-axis)
-            rotateY = new Vector3(master.camPos.x, canvas.transform.position.y, master.camPos.z);
-        }
-        else
-        {
-            // Canvas keeps facing towards the camera
-            rotateY = new Vector3(master.camPos.x, master.camPos.y, master.camPos.z);
-        }
+        // Canvas keeps facing towards the camera (rotate y-axis)
+        //Vector3 rotateY = new Vector3(master.camPos.x, canvas.transform.position.y, master.camPos.z);
+        Vector3 rotateY = new Vector3(master.camPos.x, master.camPos.y, master.camPos.z); // #% Temp
         canvas.transform.LookAt(rotateY);
 
         // When player is getting closer to the checkpoint, alpha fades to less (for visibility)

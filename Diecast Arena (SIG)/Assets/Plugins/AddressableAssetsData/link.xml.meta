@@ -1,4 +1,5 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/Plugins/AddressableAssetsData/link.xml.meta
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/Plugins/AddressableAssetsData/link.xml.meta
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/Plugins/AddressableAssetsData/link.xml.meta
@@ -6,6 +7,9 @@ guid: cebe474c863cfd5458fe9638a49cc84b
 =======
 guid: c37670e1f5a8d7345929fdb208fd2ad5
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/Plugins/AddressableAssetsData/link.xml.meta
+=======
+guid: b5d7da884abb04d4ba02ad47a84ca228
+>>>>>>> parent of 421dcd5 (Diecast Arena (SIG) 1.2 (Cinematics))
 TextScriptImporter:
 =======
 <<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyAssets/Animations/Cinematic 3.anim.meta
