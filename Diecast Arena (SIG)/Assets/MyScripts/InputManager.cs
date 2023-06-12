@@ -26,8 +26,11 @@ public class InputManager : MonoBehaviour
 
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
     bool toggleQuitGame = false;
     bool toggleExitActivity = false;
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
 =======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
 =======
@@ -57,8 +60,11 @@ public class InputManager : MonoBehaviour
 
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
         // Quit Game
 =======
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
 =======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
         allowExitActivity = master.currentState.ToString().Contains("Activity") && !master.currentState.ToString().Contains("_");
@@ -69,6 +75,9 @@ public class InputManager : MonoBehaviour
         }
 
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/InputManager.cs
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
+=======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs
 =======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/InputManager.cs

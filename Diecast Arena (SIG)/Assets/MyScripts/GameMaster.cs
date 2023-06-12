@@ -333,8 +333,11 @@ public class GameMaster : MonoBehaviour
             UI.ActivityResultUI(type, "Initial");
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/GameMaster.cs
 <<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/GameMaster.cs
+<<<<<<< HEAD:Diecast Arena (SIG)/Assets/MyScripts/GameMaster.cs
             UI.Toggles(false);
             input.ResetToggles();
+=======
+>>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/GameMaster.cs
 =======
 >>>>>>> parent of 6c7c732 (Dev):Diecast Arena (FYP)/Assets/MyScripts/GameMaster.cs
 =======
