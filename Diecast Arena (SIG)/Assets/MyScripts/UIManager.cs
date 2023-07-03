@@ -92,6 +92,7 @@ public class UIManager : MonoBehaviour
     string prompt_adjustActivity;
     string prompt_toggleOptions;
     string prompt_toggleControls;
+    string prompt_toggleReset;
     string prompt_exitHint;
     string prompt_exitHintToggle;
     string prompt_exitActivity;
@@ -120,6 +121,7 @@ public class UIManager : MonoBehaviour
 
     /* Tunables */
     float activityTriggerFade = 0.1f;
+    string resetHint = "\n" + "\n" + "T - Reset vehicle" + "\n" + "Backspace - Relaunch game";
 
     void Awake()
     {
@@ -152,6 +154,7 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        canvas.SetActive(true);
         AnimationsInitial();
         ChangeButtonType(inputType.MouseKeyboard);
         CanvasGroupToggle(HUD, false);
@@ -223,13 +226,14 @@ public class UIManager : MonoBehaviour
 
         // Game Message
         gameMessageTMP.enabled = msg_quitGame || msg_exitActivity || msg_returnSession;
+        input.allowReset = msg_quitGame || msg_exitActivity;
         if (msg_quitGame)
         {
-            gameMessageTMP.text = "Quit to Desktop?" + "\n" + "No (Esc) / Yes (Enter)";
+            gameMessageTMP.text = "Quit to Desktop?" + "\n" + "No (Esc) / Yes (Enter)" + resetHint;
         }
         if (msg_exitActivity)
         {
-            gameMessageTMP.text = "Exit activity?" + "\n" + "No " + prompt_exitHintToggle + " / Yes " + prompt_exitActivity;
+            gameMessageTMP.text = "Exit activity?" + "\n" + "No " + prompt_exitHintToggle + " / Yes " + prompt_exitActivity + resetHint;
         }
         if (msg_returnSession)
         {
@@ -296,6 +300,7 @@ public class UIManager : MonoBehaviour
             prompt_adjustActivity = "+/-";
             prompt_toggleOptions = "Tab";
             prompt_toggleControls = "Ctrl";
+            prompt_toggleReset = "R";
             prompt_exitHint = "Esc";
             prompt_exitHintToggle = "(Esc)";
             prompt_exitActivity = "(Enter)";
@@ -307,7 +312,8 @@ public class UIManager : MonoBehaviour
             prompt_startActivity = ControllerFont('x');
             prompt_adjustActivity = ControllerFont('V');
             prompt_toggleOptions = ControllerFont('W');
-            prompt_toggleControls = ControllerFont('m');
+            prompt_toggleControls = ControllerFont('X');
+            prompt_toggleReset = ControllerFont('m');
             prompt_exitHint = ControllerFont('v');
             prompt_exitHintToggle = ControllerFont('v');
             prompt_exitActivity = ControllerFont('x');
@@ -357,7 +363,10 @@ public class UIManager : MonoBehaviour
     {
         activityPressStartTMP.text = "Press " + prompt_startActivity + " to start";
         activityPressAdjustTMP.text = "Press " + prompt_adjustActivity + " to adjust";
-        toggleOptionsTMP.text = prompt_toggleOptions + " - Options" + "     " + prompt_toggleControls + " - Controls";
+        string hint1 = prompt_toggleOptions + " - Options";
+        string hint2 = prompt_toggleControls + " - Controls";
+        string hint3 = prompt_toggleReset + " - Reset";
+        toggleOptionsTMP.text = hint1 + "     " + hint2 + "     " + hint3;
         exitHintTMP.text = prompt_exitHint + " - Exit Activity";
     }
 

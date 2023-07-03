@@ -9,6 +9,7 @@ public class PostProcessing : MonoBehaviour
     GameMaster master;
     [SerializeField] VolumeProfile profile;
     DepthOfField depthOfField;
+    ColorAdjustments colorAdjustments;
 
     void Awake()
     {
@@ -20,6 +21,14 @@ public class PostProcessing : MonoBehaviour
         if (profile.TryGet(out depthOfField))
         {
             depthOfField.active = state;
+        }
+    }
+
+    public void ToggleSaturation(bool state)
+    {
+        if (profile.TryGet(out colorAdjustments))
+        {
+            colorAdjustments.saturation.overrideState = state;
         }
     }
 }

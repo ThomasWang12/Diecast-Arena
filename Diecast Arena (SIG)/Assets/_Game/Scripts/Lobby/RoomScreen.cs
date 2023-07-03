@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 ///     NetworkBehaviours cannot easily be parented, so the network logic will take place
 ///     on the network scene object "NetworkLobby"
 /// </summary>
-public class RoomScreen : MonoBehaviour {
+public class RoomScreen : NetworkBehaviour { // MonoBehaviour // #%
     [SerializeField] private LobbyPlayerPanel _playerPanelPrefab;
     [SerializeField] private Transform _playerPanelParent;
     [SerializeField] private TMP_Text _waitingText;
@@ -68,7 +68,15 @@ public class RoomScreen : MonoBehaviour {
             }
         }
 
-        _startButton.SetActive(NetworkManager.Singleton.IsHost && players.All(p => p.Value));
+        if (IsServer) // #%
+        {
+        int clientCount = NetworkManager.Singleton.ConnectedClients.Count;
+        _startButton.SetActive(NetworkManager.Singleton.IsHost && players.All(p => p.Value) && clientCount > 1);
+        }
+        else
+        {
+            _startButton.SetActive(NetworkManager.Singleton.IsHost && players.All(p => p.Value));
+        }
         _readyButton.SetActive(!_ready);
     }
 

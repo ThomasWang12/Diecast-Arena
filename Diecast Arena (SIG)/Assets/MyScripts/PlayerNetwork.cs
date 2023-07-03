@@ -6,6 +6,7 @@ using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class PlayerNetwork : NetworkBehaviour
 {
@@ -27,6 +28,7 @@ public class PlayerNetwork : NetworkBehaviour
 
     NetworkList<FixedString64Bytes> playerName;
     NetworkList<int> playerColorIndex;
+    NetworkList<int> playerCollectScore;
 
     void Awake()
     {
@@ -38,6 +40,7 @@ public class PlayerNetwork : NetworkBehaviour
 
         playerName = new NetworkList<FixedString64Bytes>();
         playerColorIndex = new NetworkList<int>();
+        playerCollectScore = new NetworkList<int>();
     }
 
     void NetworkVarsInit()
@@ -184,6 +187,23 @@ public class PlayerNetwork : NetworkBehaviour
     void ExitActivityClientRpc(int activityIndex)
     {
         master.ExitActivity(activityIndex);
+    }
+
+    #endregion
+
+    #region Collect Checkpoint
+
+    [ServerRpc(RequireOwnership = false)]
+    public void CollectCheckpointServerRpc(int id, int score)
+    {
+        playerCollectScore[id] = score;
+        CollectCheckpointClientRpc(playerCollectScore[id], score);
+    }
+
+    [ClientRpc]
+    void CollectCheckpointClientRpc(int id, int score)
+    {
+        // ...
     }
 
     #endregion

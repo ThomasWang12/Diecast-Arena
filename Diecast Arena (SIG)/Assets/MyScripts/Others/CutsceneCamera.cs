@@ -46,7 +46,7 @@ public class CutsceneCamera : MonoBehaviour
 
         if (master.ready)
         {
-            if (Input.GetKeyDown(KeyCode.Keypad1)) PlayCinematic(1);
+            /*if (Input.GetKeyDown(KeyCode.Keypad1)) PlayCinematic(1);
             if (Input.GetKeyDown(KeyCode.Keypad2)) PlayCinematic(2);
             if (Input.GetKeyDown(KeyCode.Keypad3)) PlayCinematic(3);
             if (Input.GetKeyDown(KeyCode.Keypad4)) PlayCinematic(4);
@@ -54,7 +54,7 @@ public class CutsceneCamera : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Keypad6)) PlayCinematic(6);
             if (Input.GetKeyDown(KeyCode.Keypad7)) PlayCinematic(7);
             if (Input.GetKeyDown(KeyCode.Keypad8)) PlayCinematic(8);
-            if (Input.GetKeyDown(KeyCode.Keypad9)) PlayCinematic(9);
+            if (Input.GetKeyDown(KeyCode.Keypad9)) PlayCinematic(9);*/
         }
 
         if (isPlaying)

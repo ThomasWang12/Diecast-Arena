@@ -86,13 +86,7 @@ public class CollectActivity : MonoBehaviour
 
             if (remainingTime <= 0)
             {
-                // Collection Battle finished (Time's up)
-                finished = true;
-                SetAllCheckpoints(false);
-                master.FinishActivity(activityIndex);
-                UI.ActivityCountdown5("Initial");
-                UI.ActivityCountdown("TIME'S UP");
-                UI.ResultCollectUI(activityIndex, score, false);
+                FinishTimesUp();
             }
         }
     }
@@ -249,6 +243,11 @@ public class CollectActivity : MonoBehaviour
         if (type == checkpointType.Star) score += pointStar;
         if (type == checkpointType.Diamond) score += pointDiamond;
 
+        if (!network.localPlay)
+        {
+            network.CollectCheckpointServerRpc(network.ownerPlayerId, score);
+        }
+
         if (collectedCheckpoint < totalCheckpoint)
         {
             if (type == checkpointType.Star) sound.Play(Sound.name.Checkpoint);
@@ -256,17 +255,33 @@ public class CollectActivity : MonoBehaviour
         }
         else
         {
-            // Collection Battle finished (Cleared)
-            finished = true;
-            SetAllCheckpoints(false);
-            master.FinishActivity(activityIndex);
-            UI.ResultCollectUI(activityIndex, score, true);
-            sound.Play(Sound.name.CheckpointBold);
-
-            // In case it is during countdown when finishing
-            UI.ActivityCountdown5("Initial");
-            sound.Stop(Sound.name.Countdown5);
+            FinishCleared();
         }
+    }
+
+    void FinishCleared()
+    {
+        // Collection Battle finished (Cleared)
+        finished = true;
+        SetAllCheckpoints(false);
+        master.FinishActivity(activityIndex);
+        UI.ResultCollectUI(activityIndex, score, true);
+        sound.Play(Sound.name.CheckpointBold);
+
+        // In case it is during countdown when finishing
+        UI.ActivityCountdown5("Initial");
+        sound.Stop(Sound.name.Countdown5);
+    }
+
+    void FinishTimesUp()
+    {
+        // Collection Battle finished (Time's up)
+        finished = true;
+        SetAllCheckpoints(false);
+        master.FinishActivity(activityIndex);
+        UI.ActivityCountdown5("Initial");
+        UI.ActivityCountdown("TIME'S UP");
+        UI.ResultCollectUI(activityIndex, score, false);
     }
 
     public void Reset()

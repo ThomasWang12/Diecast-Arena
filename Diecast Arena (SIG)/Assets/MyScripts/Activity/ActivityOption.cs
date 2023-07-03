@@ -16,8 +16,8 @@ public class ActivityOption : MonoBehaviour
     [HideInInspector] public float[] huntDurations = { 0.5f, 1, 1.5f, 2, 3, 4, 5 };
 
     [HideInInspector] public int currentRaceLap = 1;
-    [HideInInspector] public int currentCollectDuration = 3;
-    [HideInInspector] public int currentHuntDuration = 3;
+    [HideInInspector] public int currentCollectDuration = 4;
+    [HideInInspector] public int currentHuntDuration = 4;
 
     void Awake()
     {

@@ -22,7 +22,10 @@ namespace RVP
                 StartCoroutine(ResetRotation());
 
             if (Input.GetButtonDown("Reset Position") || transform.position.y < fallLimit)
-                StartCoroutine(ResetPosition());
+            {
+                if (GameObject.Find("Input Manager").GetComponent<InputManager>().allowReset) // #%
+                    StartCoroutine(ResetPosition());
+            }
         }
 
         // This waits for the next fixed update before resetting the rotation of the vehicle

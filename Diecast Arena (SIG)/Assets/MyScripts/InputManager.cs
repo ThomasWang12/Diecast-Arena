@@ -9,6 +9,7 @@ using static GameMaster;
 public class InputManager : MonoBehaviour
 {
     GameMaster master;
+    PlayerNetwork network;
     UIManager UI;
     SoundManager sound;
     public enum inputType { Initial, MouseKeyboard, Gamepad }
@@ -26,8 +27,10 @@ public class InputManager : MonoBehaviour
 
     bool toggleQuitGame = false;
     bool toggleExitActivity = false;
+    [HideInInspector] public bool allowReset = false;
     [HideInInspector] public bool allowExitActivity = false;
     [HideInInspector] public bool ignoreEbrake = false;
+    [HideInInspector] public float lastGamepadInputTime;
 
     /* Tunables */
     float deadzone = 0.19f;
@@ -36,6 +39,7 @@ public class InputManager : MonoBehaviour
     void Awake()
     {
         master = GameObject.FindWithTag("GameMaster").GetComponent<GameMaster>();
+        network = master.network;
         UI = master.UI;
         sound = master.sound;
     }
@@ -84,7 +88,15 @@ public class InputManager : MonoBehaviour
 
                 if (toggleExitActivity && (Input.GetKeyDown(KeyCode.Return) || Input.GetButtonDown("Gamepad Fire3")))
                 {
-                    master.ExitActivity(master.activeActivityIndex);
+                    // %& Local Play / Network
+                    if (network.localPlay)
+                    {
+                        master.ExitActivity(master.activeActivityIndex);
+                    }
+                    else
+                    {
+                        network.ExitActivityServerRpc(master.activeActivityIndex);
+                    }
                 }
             }
         }
@@ -131,6 +143,8 @@ public class InputManager : MonoBehaviour
         // Detect mouse input
         if (currentInputType == inputType.Gamepad)
         {
+            if (GamepadInput()) lastGamepadInputTime = Time.time;
+
             // Left click / Middle click / Right click
             if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
                 return inputType.MouseKeyboard;
@@ -139,42 +153,49 @@ public class InputManager : MonoBehaviour
         // Detect gamepad input
         if (currentInputType == inputType.MouseKeyboard)
         {
-            // Left joystick
-            if (Mathf.Abs(Input.GetAxisRaw("Joystick Horizontal")) > deadzone ||
-                Mathf.Abs(Input.GetAxisRaw("Joystick Vertical")) > deadzone)
-                return inputType.Gamepad;
-
-            // Right joystick
-            if (Mathf.Abs(Input.GetAxisRaw("Joystick Look X")) > deadzone ||
-                Mathf.Abs(Input.GetAxisRaw("Joystick Look Y")) > deadzone)
-                return inputType.Gamepad;
-
-            // LB / RB / L3 / R3
-            if (Input.GetButtonDown("Gamepad LB") || Input.GetButtonDown("Gamepad RB") ||
-                Input.GetButtonDown("Gamepad L3") || Input.GetButtonDown("Gamepad R3"))
-                return inputType.Gamepad;
-
-            // Shoulder triggers: LT, RT
-            if (Mathf.Abs(Input.GetAxisRaw("Gamepad LT")) > deadzone ||
-                Mathf.Abs(Input.GetAxisRaw("Gamepad RT")) > deadzone)
-                return inputType.Gamepad;
-
-            // Buttons: Select, Start
-            if (Input.GetButtonDown("Gamepad Select") || Input.GetButtonDown("Gamepad Start"))
-                return inputType.Gamepad;
-
-            // Buttons: Up, Down, Left, Right
-            if (Mathf.Abs(Input.GetAxisRaw("Gamepad Up/Down Buttons")) > deadzero ||
-                Mathf.Abs(Input.GetAxisRaw("Gamepad Left/Right Buttons")) > deadzero)
-                return inputType.Gamepad;
-
-            // Buttons: Fire1 = A (X), Fire2 = B (O), Fire3 = X (Square), Jump = Y (Triangle)
-            if (Input.GetButtonDown("Gamepad Fire1") || Input.GetButtonDown("Gamepad Fire2") ||
-                Input.GetButtonDown("Gamepad Fire3") || Input.GetButtonDown("Gamepad Jump"))
-                return inputType.Gamepad;
+            return (GamepadInput()) ? inputType.Gamepad : currentInputType;
         }
 
         return currentInputType;
+    }
+
+    bool GamepadInput()
+    {
+        // Left joystick
+        if (Mathf.Abs(Input.GetAxisRaw("Joystick Horizontal")) > deadzone ||
+            Mathf.Abs(Input.GetAxisRaw("Joystick Vertical")) > deadzone)
+            return true;
+
+        // Right joystick
+        if (Mathf.Abs(Input.GetAxisRaw("Joystick Look X")) > deadzone ||
+            Mathf.Abs(Input.GetAxisRaw("Joystick Look Y")) > deadzone)
+            return true;
+
+        // LB / RB / L3 / R3
+        if (Input.GetButtonDown("Gamepad LB") || Input.GetButtonDown("Gamepad RB") ||
+            Input.GetButtonDown("Gamepad L3") || Input.GetButtonDown("Gamepad R3"))
+            return true;
+
+        // Shoulder triggers: LT, RT
+        if (Mathf.Abs(Input.GetAxisRaw("Gamepad LT")) > deadzone ||
+            Mathf.Abs(Input.GetAxisRaw("Gamepad RT")) > deadzone)
+            return true;
+
+        // Buttons: Select, Start
+        if (Input.GetButtonDown("Gamepad Select") || Input.GetButtonDown("Gamepad Start"))
+            return true;
+
+        // Buttons: Up, Down, Left, Right
+        if (Mathf.Abs(Input.GetAxisRaw("Gamepad Up/Down Buttons")) > deadzero ||
+            Mathf.Abs(Input.GetAxisRaw("Gamepad Left/Right Buttons")) > deadzero)
+            return true;
+
+        // Buttons: Fire1 = A (X), Fire2 = B (O), Fire3 = X (Square), Jump = Y (Triangle)
+        if (Input.GetButtonDown("Gamepad Fire1") || Input.GetButtonDown("Gamepad Fire2") ||
+            Input.GetButtonDown("Gamepad Fire3") || Input.GetButtonDown("Gamepad Jump"))
+            return true;
+
+        return false;
     }
 
     void OnInputTypeChange(inputType type)
@@ -230,7 +251,7 @@ public class InputManager : MonoBehaviour
         if (!allowInput) return false;
 
         if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl)
-            || Input.GetButtonDown("Gamepad Start")) return true;
+            || GamepadDownButton()) return true;
         return false;
     }
 
